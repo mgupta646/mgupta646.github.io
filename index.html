@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mehul Gupta · Interactive Portfolio</title>
+  <meta name="description" content="Mehul Gupta builds AI products and makes the data underneath them correct. Explore a playable pixel town: AI systems, analytics, product delivery and aerospace engineering. NYU MS Management of Technology, Dec 2026.">
+  <meta name="author" content="Mehul Gupta">
+  <meta name="theme-color" content="#2a2230">
+  <!-- Social previews. If you deploy somewhere other than https://mgupta646.github.io/, update these two URLs. -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://mgupta646.github.io/">
+  <meta property="og:title" content="Mehul Gupta · Explore Mehul Town">
+  <meta property="og:description" content="A playable pixel-art portfolio: AI products, data, software and aerospace engineering. Take the guided tour or read it all in Quick View.">
+  <meta property="og:image" content="https://mgupta646.github.io/assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Mehul Gupta",
+    "jobTitle": "AI Product & Analytics",
+    "email": "mailto:mg8671@nyu.edu",
+    "address": { "@type": "PostalAddress", "addressLocality": "Brooklyn", "addressRegion": "NY" },
+    "alumniOf": [
+      { "@type": "CollegeOrUniversity", "name": "New York University Tandon School of Engineering" },
+      { "@type": "CollegeOrUniversity", "name": "Chandigarh University" }
+    ],
+    "sameAs": ["https://www.linkedin.com/in/mehulmg/", "https://github.com/mgupta646", "https://public.tableau.com/app/profile/mehul.gupta7649/vizzes"]
+  }
+  </script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%236a2ca8'/%3E%3Cpath fill='%23fff' d='M3 4h2v1h1v1h1v1h2V6h1V5h1V4h2v9h-2V8h-1v1H9v1H7V9H6V8H5v5H3z'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=13">
+</head>
+<body>
+  <canvas id="game" aria-label="Mehul Town: an explorable pixel-art portfolio"></canvas>
+
+  <!-- ================= HUD ================= -->
+  <div id="hud" hidden>
+    <div class="hud-tl">
+      <div class="namecard win">
+        <b>MEHUL GUPTA</b>
+        <span>AI Products · Data · Aerospace</span>
+      </div>
+      <button id="progressBtn" class="progress win" title="Quest log (L)">
+        <span class="pstar">★</span> <span id="foundN">0</span>/<span id="foundT">16</span> FOUND
+        <span class="bar"><i id="foundBar"></i></span>
+      </button>
+    </div>
+
+    <div class="hud-tr">
+      <button id="btnQuick" class="btn hudbtn primary" title="Read everything on one page (Q)">QUICK VIEW</button>
+      <button id="btnMenu" class="btn hudbtn" title="Menu (Esc)">MENU</button>
+    </div>
+
+    <div id="help" class="help win">
+      <button class="x" id="helpClose" aria-label="Hide controls">×</button>
+      <b>CONTROLS</b>
+      <ul>
+        <li><kbd>←↑→↓</kbd>/<kbd>WASD</kbd> move</li>
+        <li><kbd>CLICK</kbd> walk / open</li>
+        <li><kbd>SHIFT</kbd> run</li>
+        <li><kbd>E</kbd>/<kbd>ENTER</kbd> interact</li>
+        <li><kbd>T</kbd> guided tour · <kbd>N</kbd> next stop</li>
+        <li><kbd>Q</kbd> quick view · <kbd>L</kbd> quests</li>
+        <li><kbd>ESC</kbd> menu</li>
+      </ul>
+    </div>
+    <button id="helpShow" class="btn hudbtn help-show" hidden>? CONTROLS</button>
+
+    <div class="minimap win" id="minimapWrap" title="Click to travel">
+      <canvas id="minimap"></canvas>
+    </div>
+  </div>
+
+  <!-- ================= Touch controls ================= -->
+  <div id="touch" hidden>
+    <div class="dpad">
+      <button data-dir="up" aria-label="Up">▲</button>
+      <button data-dir="left" aria-label="Left">◀</button>
+      <button data-dir="right" aria-label="Right">▶</button>
+      <button data-dir="down" aria-label="Down">▼</button>
+    </div>
+    <div class="ab">
+      <button id="tB" aria-label="Run">B</button>
+      <button id="tA" aria-label="Interact">A</button>
+    </div>
+  </div>
+
+  <!-- ================= Dialog box ================= -->
+  <div id="dialog" class="win" hidden>
+    <div class="dlg-name" id="dlgName"></div>
+    <div class="dlg-text" id="dlgText"></div>
+    <div class="dlg-hint" id="dlgHint"></div>
+  </div>
+
+  <!-- ================= Section panel ================= -->
+  <div id="panel" class="dock" hidden role="dialog" aria-labelledby="pTitle">
+    <div class="panel win">
+      <header class="phead">
+        <img id="pIcon" alt="" aria-hidden="true">
+        <div><h2 id="pTitle"></h2><small id="pSub"></small><em class="phint" id="pHint">Walk away or press Esc to close</em></div>
+        <button class="x" id="pClose" aria-label="Close (Esc)">×</button>
+      </header>
+      <div class="pbody" id="pBody"></div>
+      <footer class="pfoot">
+        <button class="btn" id="pPrev">◀ PREV</button>
+        <span id="pCount"></span>
+        <button class="btn" id="pQuick">READ ALL</button>
+        <button class="btn" id="pNext">NEXT ▶</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ================= Quick View ================= -->
+  <div id="quick" hidden>
+    <div class="qbar">
+      <b>MEHUL GUPTA · QUICK VIEW</b>
+      <button class="btn" id="quickClose">◀ BACK TO TOWN</button>
+    </div>
+    <div id="quickInner" class="qinner"></div>
+  </div>
+
+  <!-- ================= Quest log ================= -->
+  <div id="questlog" class="overlay" hidden role="dialog" aria-modal="true">
+    <div class="log win">
+      <header class="phead"><div><h2>QUEST LOG</h2><small>Landmarks discovered: <b id="logCount"></b> · press GO to auto-walk</small></div><button class="x" id="logClose" aria-label="Close">×</button></header>
+      <ul id="logList"></ul>
+    </div>
+  </div>
+
+  <!-- ================= Start menu ================= -->
+  <div id="menu" class="win" hidden>
+    <button data-m="tour">GUIDED TOUR</button>
+    <button data-m="quick">QUICK VIEW</button>
+    <button data-m="log">QUEST LOG</button>
+    <button data-m="sfx">SOUND: <span id="mSfx">ON</span></button>
+    <button data-m="music">MUSIC: <span id="mMusic">OFF</span></button>
+    <button data-m="time">TIME: <span id="mTime">AUTO</span></button>
+    <button data-m="help">CONTROLS</button>
+    <a data-m="pdf" href="assets/Mehul_Gupta_Portfolio.pdf" download>PORTFOLIO PDF</a>
+    <button data-m="reset">RESET PROGRESS</button>
+    <button data-m="close">EXIT</button>
+  </div>
+
+  <!-- ================= Guided tour ================= -->
+  <button id="tourBtn" class="tour-btn" hidden title="Guided tour (T)">
+    <span class="tb-icon">▶</span><span class="tb-label">TOUR</span><small class="tb-sub">GUIDED</small>
+  </button>
+
+  <div id="tourPlanner" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="tpTitle">
+    <div class="planner win">
+      <header class="tp-head">
+        <img id="tpGuide" alt="" aria-hidden="true">
+        <div class="tp-say">
+          <b id="tpTitle">GUIDED TOUR</b>
+          <p id="tpSay"></p>
+        </div>
+      </header>
+      <div class="tp-presets" id="tpPresets"></div>
+      <div class="tp-list" id="tpList"></div>
+      <footer class="tp-foot">
+        <span id="tpMeta"></span>
+        <button class="btn" id="tpSkip">EXPLORE ON MY OWN</button>
+        <button class="btn primary" id="tpGo">▶ START TOUR</button>
+      </footer>
+    </div>
+  </div>
+
+  <div id="tourBar" class="win" hidden aria-live="polite">
+    <div class="tbar-top"><b id="tbStep"></b><span class="tbar-dots" id="tbDots"></span></div>
+    <p id="tbText"></p>
+    <div class="tbar-btns">
+      <button class="btn" id="tbEnd">■ END</button>
+      <button class="btn primary" id="tbNext">NEXT STOP ▶</button>
+    </div>
+  </div>
+
+  <div id="toasts"></div>
+
+  <!-- ================= Title screen ================= -->
+  <div id="title">
+    <div class="title-card">
+      <p class="t-pre">WELCOME TO</p>
+      <h1 class="t-logo"><span>MEHUL</span><span>TOWN</span></h1>
+      <p class="t-sub">The interactive portfolio of <b>Mehul Gupta</b></p>
+      <p class="t-roles">AI SYSTEMS · ANALYTICS · PRODUCT · AEROSPACE</p>
+      <div class="t-btns">
+        <button class="btn big primary" id="startBtn">▶ START ADVENTURE</button>
+        <button class="btn big" id="quickBtn">QUICK VIEW (2-MIN READ)</button>
+      </div>
+      <p class="t-press">PRESS ENTER</p>
+      <p class="t-status">NYU MS · Dec 2026 · Available Jan 2027 · Brooklyn, NY</p>
+    </div>
+  </div>
+
+  <noscript>
+    <div class="noscript">
+      <h1>Mehul Gupta</h1>
+      <p>I build AI products and make the data underneath them correct. AI systems · analytics · product delivery · aerospace engineering.</p>
+      <p>MS Management of Technology, NYU Tandon (Dec 2026) · BE Aerospace Engineering, Chandigarh University (May 2024). Available January 2027, Brooklyn NY, open to relocation.</p>
+      <p><a href="mailto:mg8671@nyu.edu">mg8671@nyu.edu</a> · <a href="https://www.linkedin.com/in/mehulmg/">LinkedIn</a> · <a href="https://github.com/mgupta646">GitHub</a> · <a href="assets/Mehul_Gupta_Portfolio.pdf">Portfolio PDF</a></p>
+    </div>
+  </noscript>
+
+  <script src="js/data.js?v=13"></script>
+  <script src="js/sprites.js?v=13"></script>
+  <script src="js/world.js?v=13"></script>
+  <script src="js/audio.js?v=13"></script>
+  <script src="js/ui.js?v=13"></script>
+  <script src="js/game.js?v=13"></script>
+</body>
+</html>
