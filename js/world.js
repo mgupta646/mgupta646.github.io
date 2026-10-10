@@ -53,6 +53,9 @@ function buildWorld() {
   rect(48, 24, 1, 3, "P");           // base path
   rect(18, 39, 26, 2, "Z");          // station platform
   rect(0, World.railY, MAP_W, 1, "K"); rect(31, World.railY, 2, 1, "X");   // railway + crossing
+  // Planned garden edges frame the plaza without interrupting walking routes.
+  for (const y of [18, 19, 20, 21, 24, 25, 26]) for (const x of [25, 38]) if (g[y][x] === 'G') set(x, y, 'F');
+  for (const x of [27, 28, 29, 34, 35, 36]) if (g[27][x] === 'G') set(x, 27, 'F');
   // nature
   rect(12, 15, 5, 4, "Y"); rect(33, 15, 4, 3, "Y"); rect(5, 42, 6, 2, "Y"); rect(56, 42, 4, 2, "Y"); rect(2, 26, 2, 5, "Y");
   for (let x = 3; x <= 10; x++) if (x !== 7) set(x, 9, "H");       // garden fence
@@ -227,6 +230,13 @@ function renderGround(frame) {
       case "X": drawPath(P, X, Y, tx, ty, { u: true, d: true, l: true, r: true }); drawRails(P, X, Y, tx, ty, true); break;
     }
   }
+  // An inlaid compass marks the meeting point in the central plaza.
+  const mx = 32 * T, my = 24 * T;
+  for (let i = 0; i < 10; i++) {
+    P.r(mx - i, my - 10 + i, i * 2 + 1, 1, i < 5 ? '#769987' : '#c6c79f');
+    P.r(mx - i, my + 10 - i, i * 2 + 1, 1, i < 5 ? '#c6c79f' : '#769987');
+  }
+  P.box(mx - 2, my - 2, 5, 5, '#f4d782', '#607f6b');
   drawHelipad(P, 46 * T + 8, 32 * T - 8);
   // soft shadows under trees
   x.fillStyle = "rgba(0,0,0,.16)";

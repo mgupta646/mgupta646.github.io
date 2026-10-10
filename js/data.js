@@ -31,7 +31,7 @@ const CATEGORIES = [
   { id: "life", name: "About, Awards & Contact" },
 ];
 const TOUR_PRESETS = [
-  { id: "recruiter", name: "★ Recruiter's Cut", ids: ["home", "vlab", "rosi", "magic", "aviation", "citibike", "apps", "nyu", "trophy", "contact"] },
+  { id: "recruiter", name: "★ Recruiter's Cut", ids: ["home", "vlab", "rosi", "magic", "contact"] },
   { id: "ai", name: "AI & Product", cats: ["ai"] },
   { id: "data", name: "Data & Analytics", cats: ["data"] },
   { id: "build", name: "Builds & Code", cats: ["build"] },

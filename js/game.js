@@ -18,6 +18,7 @@
   const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
   const OPP = { up: "down", down: "up", left: "right", right: "left" };
   const isTouch = matchMedia("(pointer: coarse)").matches;
+  const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
   const panelEl = $("#panel");
 
   let dpr = 1, scale = 3, VW = 320, VH = 240;
@@ -30,7 +31,7 @@
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   };
   const found = new Set(store.get("mt_found", []).filter((id) => SEC[id]));
-  let timeMode = store.get("mt_time", "auto");
+  let timeMode = store.get("mt_time", "day");
 
   /* ---------- entities ---------- */
   const ent = (tx, ty, extra = {}) => ({ tx, ty, fx: tx, fy: ty, px: tx * T, py: ty * T, moving: false, prog: 0, dir: "down", step: 0, speed: 5, ...extra });
@@ -659,8 +660,8 @@
     let tx, ty;
     if (!started) {
       attractT += dt;
-      tx = (WORLD_W - VW) / 2 + Math.sin(attractT * 0.07) * (WORLD_W - VW) / 2;
-      ty = (WORLD_H - VH) / 2 + Math.sin(attractT * 0.1 + 1) * (WORLD_H - VH) / 2;
+      tx = 31 * T - VW * (innerWidth > 900 ? 0.72 : 0.5) + (reducedMotion.matches ? 0 : Math.sin(attractT * 0.05) * 26);
+      ty = 20 * T - VH * 0.45 + (reducedMotion.matches ? 0 : Math.sin(attractT * 0.06) * 14);
     } else if (camFocus) { tx = camFocus.x - VW / 2; ty = camFocus.y - VH / 2; }
     else {
       let vw = VW, vh = VH;
@@ -673,7 +674,7 @@
     }
     tx = VW >= WORLD_W ? (WORLD_W - VW) / 2 : Math.max(0, Math.min(WORLD_W - VW, tx));
     ty = VH >= WORLD_H ? (WORLD_H - VH) / 2 : Math.max(0, Math.min(WORLD_H - VH, ty));
-    const k = !started ? 1 : camFocus ? Math.min(1, dt * 4) : Math.min(1, dt * 10);
+    const k = !started || reducedMotion.matches ? 1 : camFocus ? Math.min(1, dt * 4) : Math.min(1, dt * 10);
     cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k;
   }
 
@@ -699,7 +700,8 @@
 
   function render(t) {
     const cx = Math.round(cam.x), cy = Math.round(cam.y);
-    const nt = night(), flip = Math.abs(Math.floor(t / 0.6)) % 2;
+    t = reducedMotion.matches ? 0 : t;
+    const nt = started ? night() : 0, flip = Math.abs(Math.floor(t / 0.6)) % 2;
     bctx.fillStyle = "#1c4424"; bctx.fillRect(0, 0, VW, VH);
     bctx.drawImage(World.groundCanvas[flip], -cx, -cy);
 
@@ -782,7 +784,7 @@
     }
 
     // butterflies (fireflies at night)
-    for (const f of flies) {
+    for (const f of reducedMotion.matches ? [] : flies) {
       const X = f.ax + 8 + Math.sin(t * 0.9 + f.ph) * 16, Y = f.ay + 4 + Math.sin(t * 1.7 + f.ph) * 9 - 6;
       if (!inView(X, Y, 6, 6)) continue;
       if (nt >= 1) { bctx.fillStyle = "rgba(255,240,120,.9)"; bctx.fillRect(Math.round(X - cx), Math.round(Y - cy), 2, 2); }
@@ -790,7 +792,7 @@
     }
 
     // particles
-    for (const p of parts) {
+    for (const p of reducedMotion.matches ? [] : parts) {
       const X = Math.round(p.x - cx), Y = Math.round(p.y - cy), a = Math.max(0, p.life / p.max);
       bctx.globalAlpha = p.smoke ? a * 0.55 : Math.min(1, a * 1.5);
       if (p.star) { BP.p(X, Y, "#fff"); BP.p(X - 1, Y, "#f8e048"); BP.p(X + 1, Y, "#f8e048"); BP.p(X, Y - 1, "#f8e048"); BP.p(X, Y + 1, "#f8e048"); if (a > 0.5) { BP.p(X - 2, Y, "#fff8c0"); BP.p(X + 2, Y, "#fff8c0"); } }
@@ -801,7 +803,7 @@
     bctx.globalAlpha = 1;
 
     // drifting cloud shadows (daytime)
-    if (nt < 1) {
+    if (nt < 1 && !reducedMotion.matches) {
       bctx.globalAlpha = 0.09;
       for (const c of clouds) if (inView(c.x, c.y, 140, 70)) bctx.drawImage(cloudSpr[c.k], Math.round(c.x - cx), Math.round(c.y - cy));
       bctx.globalAlpha = 1;
@@ -831,10 +833,10 @@
       if (train.state !== "wait") glow(train.x - 2 - cx, World.railY * T + 1 - cy, 30, 0.5 * nt, "255,240,180");
       bctx.globalCompositeOperation = "source-over";
     }
-    if (flash > 0) { bctx.fillStyle = `rgba(255,255,255,${flash})`; bctx.fillRect(0, 0, VW, VH); }
+    if (flash > 0 && !reducedMotion.matches) { bctx.fillStyle = `rgba(255,255,255,${flash})`; bctx.fillRect(0, 0, VW, VH); }
 
     // blit
-    const sx = shake > 0 ? Math.round((Math.random() - .5) * 2 * scale) : 0, sy = shake > 0 ? Math.round((Math.random() - .5) * 2 * scale) : 0;
+    const sx = shake > 0 && !reducedMotion.matches ? Math.round((Math.random() - .5) * 2 * scale) : 0, sy = shake > 0 && !reducedMotion.matches ? Math.round((Math.random() - .5) * 2 * scale) : 0;
     ctx.drawImage(buf, sx, sy, VW * scale, VH * scale);
 
     // landmark labels + name tag (crisp, on the full-res canvas)
@@ -965,13 +967,13 @@
     const code = e.code;
     kIdx = code === konami[kIdx] ? kIdx + 1 : code === konami[0] ? 1 : 0;
     if (kIdx === konami.length) { kIdx = 0; secret(); }
-    if (!$("#title").hidden) { if (code === "Enter" || code === "Space") { e.preventDefault(); start(); } return; }
+    if (!$("#title").hidden) { if (!e.target.closest("button, a, input, select") && (code === "Enter" || code === "Space")) { e.preventDefault(); start(); } return; }
     if (!$("#tourPlanner").hidden) {
       if (code === "Escape") closePlanner(true);
       else if (code === "Enter" && e.target.tagName !== "BUTTON" && tour.sel.size) { e.preventDefault(); startTour([...tour.sel], tour.firstPick); }
       return;
     }
-    if (!$("#quick").hidden) { if (code === "Escape") UI.closeQuick(); return; }
+    if (!$("#quick").hidden) { if (code === "Escape" && e.target.tagName !== "SELECT") UI.closeQuick(); return; }
     if (!$("#questlog").hidden) { if (code === "Escape") UI.closeLog(); return; }
     if (!$("#menu").hidden) {
       const items = [...$("#menu").querySelectorAll("button,a")], i = items.indexOf(document.activeElement);
@@ -1092,11 +1094,12 @@
     started = true;
     $("#title").hidden = true; $("#hud").hidden = false; tourBtn.hidden = false;
     if (isTouch) $("#touch").hidden = false;
-    toggleHelp(store.get("mt_help", !isTouch));
-    Audio8.unlock(); Audio8.beginMusic();
+    toggleHelp(store.get("mt_help", !isTouch && innerWidth > 720));
+    if (!opts.silent) { Audio8.unlock(); Audio8.beginMusic(); }
     if (!opts.silent) Audio8.play("open");
     flash = 0.6; syncMenu(); updateHUD();
     cam.x = player.px + 8 - VW / 2; cam.y = player.py - VH / 2;
+    document.dispatchEvent(new Event('readingchange'));
     if (opts.silent) return;
     setTimeout(() => {
       if (found.size === 0) {
@@ -1108,34 +1111,59 @@
   $("#startBtn").onclick = () => start();
   $("#quickBtn").onclick = () => { start({ silent: true }); Audio8.duck(true); UI.openQuick(); };
 
-  // deep links: #quick, #tour or #<section>
-  const deepLink = location.hash.slice(1);
-  if (deepLink === "quick") { start({ silent: true }); Audio8.duck(true); UI.openQuick(); }
-  else if (deepLink === "tour") { start({ silent: true }); openPlanner("new"); }
-  else if (SEC[deepLink]) { start({ silent: true }); openSection(deepLink, false); }
+  // Reading links survive refresh and native Back/Forward navigation.
+  function route() {
+    const hash = location.hash.slice(1);
+    if (hash === 'quick' || hash.startsWith('q-')) {
+      start({ silent: true });
+      UI.openQuick(SEC[hash.slice(2)] ? hash.slice(2) : null, false);
+    } else {
+      UI.closeQuick(false);
+      if (hash === 'tour') { start({ silent: true }); openPlanner('new'); }
+      else if (SEC[hash]) { start({ silent: true }); openSection(hash, false); }
+    }
+  }
+  route();
+  addEventListener('popstate', route);
+  addEventListener('hashchange', () => {
+    const hash = location.hash.slice(1);
+    if ((hash === 'quick' || hash.startsWith('q-')) && ($('#quick').hidden || (UI.quickSection || 'quick') !== (hash.startsWith('q-') ? hash.slice(2) : hash))) route();
+  });
 
   /* ---------- main loop ---------- */
   addEventListener("resize", resize);
   resize();
   cam.x = (WORLD_W - VW) / 2; cam.y = (WORLD_H - VH) / 2;
   updateHUD();
-  let last = performance.now(), t0 = last, mmT = 0;
+  let last = performance.now(), t0 = last, mmT = 0, frameId = null;
+  function resumeFrames() {
+    if (frameId === null && !document.hidden && $("#quick").hidden) { last = performance.now(); frameId = requestAnimationFrame(frame); }
+  }
+  document.addEventListener("readingchange", resumeFrames);
+  document.addEventListener("visibilitychange", resumeFrames);
   function frame(now) {
+    frameId = null;
+    if (document.hidden || !$("#quick").hidden) return;
     // rAF timestamps can precede t0 on the first frame: clamp so t and dt are never negative
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)), t = Math.max(0, (now - t0) / 1000); last = Math.max(last, now);
     bumpCD -= dt; shake = Math.max(0, shake - dt); flash = Math.max(0, flash - dt * 1.5);
     if (clickMark && (clickMark.t -= dt) <= 0) clickMark = null;
     if (started) updatePlayer(dt);
-    updateWorld(dt);
+    if (!reducedMotion.matches || started) updateWorld(dt);
     updateRocket(dt);
     updateDialog(dt);
     updateParts(dt);
     updateCamera(dt);
     render(t);
-    if ((mmT -= dt) <= 0 && started) { mmT = 0.15; drawMinimap(t); }
-    requestAnimationFrame(frame);
+    if ((mmT -= dt) <= 0 && started) {
+      mmT = 0.15; drawMinimap(t);
+      const district = player.ty < 14 ? (player.tx < 30 ? 'CAMPUS QUARTER' : 'AI & ENERGY PARK') : player.ty > 37 ? 'RAILWAY STATION' : player.ty > 26 ? (player.tx > 37 ? 'AEROSPACE BASE' : 'GARDEN DISTRICT') : player.tx > 48 ? 'AIRFIELD' : 'CENTRAL PLAZA';
+      const label = $('#district b'); if (label.textContent !== district) label.textContent = district;
+    }
+    // The illustrated title is opaque. Keep the game idle until it is visible.
+    if (started) frameId = requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+  resumeFrames();
   // handy for debugging in the console; tick(sec) advances the simulation without rendering
   window.MehulTown = {
     player, tour, npcs, train, goSection, nextStop,
