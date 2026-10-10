@@ -7,12 +7,12 @@ const Audio8 = (() => {
   const DUCK_VOL = 0.05;    // while a panel / quick view is open
 
   let ac = null, master = null;
-  let sfxOn = true, musicOn = true, ducked = false, bgm = null, wantMusic = false;
+  let sfxOn = true, musicOn = false, reading = false, ducked = false, bgm = null, wantMusic = false;
 
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v === null ? d : v === "1"; } catch { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, v ? "1" : "0"); } catch {} };
   sfxOn = load("mt_sfx", true);
-  musicOn = load("mt_music", true);
+  musicOn = load("mt_music", false);
 
   function ensure() {
     if (ac) { if (ac.state === "suspended") ac.resume(); return true; }
@@ -85,12 +85,12 @@ const Audio8 = (() => {
 
   document.addEventListener("visibilitychange", () => {
     if (!bgm || !musicOn) return;
-    if (document.hidden) bgm.pause(); else { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); }
+    if (document.hidden || reading) bgm.pause(); else { const p = bgm.play(); if (p && p.catch) p.catch(() => {}); }
   });
 
   return {
     /* every user gesture calls this; it also starts music that a deep link couldn't autoplay */
-    unlock() { ensure(); if (wantMusic && musicOn && (!bgm || bgm.paused)) startMusic(); },
+    unlock() { ensure(); if (wantMusic && musicOn && !reading && (!bgm || bgm.paused)) startMusic(); },
     play(name) { if (!sfxOn || !ensure()) return; try { sfx[name] && sfx[name](); } catch {} },
     get sfx() { return sfxOn; },
     get music() { return musicOn; },
@@ -99,9 +99,11 @@ const Audio8 = (() => {
     beginMusic() { wantMusic = true; if (musicOn) startMusic(); },
     toggleMusic() {
       musicOn = !musicOn; save("mt_music", musicOn);
-      musicOn ? startMusic() : stopMusic();
+      wantMusic = musicOn;
+      musicOn && !reading ? startMusic() : stopMusic();
       return musicOn;
     },
+    reading(on) { reading = on; if (on) { clearInterval(fadeTimer); if (bgm) bgm.pause(); } else if (wantMusic && musicOn && !document.hidden) startMusic(); },
     duck(on) { ducked = on; if (musicOn && bgm && !bgm.paused) fadeTo(level(), 400); },
   };
 })();

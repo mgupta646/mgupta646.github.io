@@ -340,10 +340,10 @@ const FLY_2 = [".AKA.", ".AKA.", ".AKA.", "..K.."];
    GROUND TILES
    ========================================================================== */
 const C = {
-  grass: "#78c858", grassP: "#86d266", grassQ: "#6cbc50", grassD: "#58a840", grassL: "#a8e488",
+  grass: "#91c86b", grassP: "#98ce72", grassQ: "#89c364", grassD: "#69aa56", grassL: "#b7de87",
   path: "#e4cc94", pathL: "#eed9a8", pathM: "#dcc288", pathD: "#c8ac70", pathE: "#b8985c",
-  plaza: "#dcd4c4", plazaL: "#efe9dd", plazaD: "#b4aa98", plazaB: "#d2c9b6", plazaC: "#e4dccd",
-  water: "#4c94f0", waterD: "#3878d0", waterL: "#94c8ff", waterM: "#428ae8", foam: "#e0f4ff",
+  plaza: "#e5dfb9", plazaL: "#f6efcf", plazaD: "#b9b690", plazaB: "#dbd6af", plazaC: "#ebe6c4",
+  water: "#53acbb", waterD: "#328294", waterL: "#91d7d6", waterM: "#479eaf", foam: "#def7e4",
   sand: "#f0dca0", sandD: "#d8c084", sandL: "#f8ecc0",
   deck: "#c48c54", deckD: "#946238", deckL: "#d8a46c",
   conc: "#b4b8bc", concD: "#90949a", concL: "#c8ccd0",
@@ -363,26 +363,16 @@ function vnoise(x, y, s = 0) {
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map((v) => v / 16 - 0.5);
 
 function drawGrass(P, x, y, tx, ty) {
-  // mottled base: 2x2 blocks, three greens, dithered transitions
-  for (let by = 0; by < 8; by++) for (let bx = 0; bx < 8; bx++) {
-    const wx = tx * 8 + bx, wy = ty * 8 + by;
-    const n = vnoise(wx / 11, wy / 11, 11) * 0.7 + vnoise(wx / 4, wy / 4, 12) * 0.3 + BAYER[(by % 4) * 4 + (bx % 4)] * 0.1;
-    P.r(x + bx * 2, y + by * 2, 2, 2, n > 0.6 ? C.grassP : n < 0.38 ? C.grassQ : C.grass);
+  // Quiet 16px tiles let the characters and landmarks read clearly.
+  const n = vnoise(tx / 3, ty / 3, 11);
+  P.r(x, y, T, T, n > .66 ? C.grassP : n < .28 ? C.grassQ : C.grass);
+  for (let k = 0; k < 2; k++) if (hash(tx, ty, k + 4) < .64) {
+    const gx = x + 2 + ((hash(tx, ty, k + 9) * 10) | 0), gy = y + 3 + ((hash(tx, ty, k + 17) * 9) | 0);
+    P.p(gx, gy, C.grassD); P.p(gx + 2, gy - 1, C.grassD); P.p(gx + 1, gy + 1, C.grassD);
+    P.p(gx, gy - 1, C.grassL);
   }
-  // blades
-  for (let k = 0; k < 5; k++) {
-    if (hash(tx, ty, k) < 0.62) {
-      const gx = x + 1 + ((hash(tx, ty, k + 9) * 12) | 0), gy = y + 2 + ((hash(tx, ty, k + 17) * 11) | 0);
-      P.p(gx, gy, C.grassD); P.p(gx + 2, gy, C.grassD); P.p(gx + 1, gy + 1, C.grassD);
-      P.p(gx, gy - 1, C.grassL);
-    }
-  }
-  // specks, pebbles, the odd mushroom
-  if (hash(tx, ty, 77) < 0.3) P.p(x + 7, y + 4, C.grassL);
-  if (hash(tx, ty, 78) < 0.12) { P.r(x + 10, y + 11, 2, 1, "#9aa088"); P.p(x + 10, y + 10, "#c8ccb8"); }
-  if (hash(tx, ty, 79) < 0.018) {
-    const mx = x + 4 + ((hash(tx, ty, 80) * 7) | 0), my = y + 6;
-    P.r(mx, my, 4, 2, "#d84848"); P.p(mx + 1, my, "#ffffff"); P.r(mx + 1, my + 2, 2, 2, "#f4ecd8");
+  if (hash(tx, ty, 79) < .012) {
+    P.r(x + 6, y + 8, 4, 2, '#cb725a'); P.p(x + 7, y + 8, '#fff1cf'); P.r(x + 7, y + 10, 2, 2, '#f4ecd8');
   }
 }
 
@@ -447,20 +437,12 @@ function drawPath(P, x, y, tx, ty, nb) {
 }
 
 function drawPlaza(P, x, y, tx, ty) {
+  // Broad, bevelled paving: fewer seams than the original brick texture.
   P.r(x, y, T, T, C.plazaD);
-  for (let row = 0; row < 4; row++) {
-    const off = (ty * 4 + row) % 2 ? 4 : 0;
-    for (let col = -1; col < 2; col++) {
-      const bx = x + col * 8 + off, by = y + row * 4;
-      const h = hash(tx * 3 + col, ty * 4 + row, 33);
-      const fill = h < 0.33 ? C.plazaB : h < 0.66 ? C.plaza : C.plazaC;
-      const x0 = Math.max(x, bx), x1 = Math.min(x + T, bx + 7);
-      if (x1 <= x0) continue;
-      P.r(x0, by, x1 - x0, 3, fill);
-      P.r(x0, by, x1 - x0, 1, C.plazaL);
-      if (h > 0.94) P.p(Math.min(x1 - 1, x0 + 3), by + 1, "#9aa878");
-    }
-  }
+  P.r(x + 1, y + 1, 14, 14, hash(tx, ty, 33) > .65 ? C.plazaC : C.plaza);
+  P.r(x + 1, y + 1, 14, 1, C.plazaL); P.r(x + 1, y + 1, 1, 13, C.plazaL);
+  P.r(x + 2, y + 14, 13, 1, C.plazaB);
+  if ((tx + ty) % 4 === 0) { P.r(x + 6, y + 7, 4, 2, C.plazaB); P.r(x + 7, y + 6, 2, 4, C.plazaB); }
 }
 
 function drawWater(P, x, y, tx, ty, nb, frame) {
@@ -901,17 +883,32 @@ function buildSign() {
 }
 
 function buildFountain(frame) {
-  const [c, x] = makeCanvas(32, 40), P = new Px(x);
-  P.r(1, 36, 30, 4, "rgba(0,0,0,.2)");
-  P.r(0, 14, 32, 24, OUT); P.r(1, 15, 30, 22, "#c4c8d4"); P.r(1, 15, 30, 2, "#e4e8f0");
-  P.r(4, 18, 24, 15, OUT); P.r(5, 19, 22, 13, C.water);
-  P.r(6, 20 + frame, 6, 1, C.waterL); P.r(18, 26 - frame, 6, 1, C.waterL); P.r(9, 29, 4, 1, C.waterL);
-  P.r(14, 8, 4, 18, OUT); P.r(15, 8, 2, 18, "#d8dce4");
-  P.r(11, 6, 10, 4, OUT); P.r(12, 7, 8, 2, "#d8dce4");
-  // spray
-  const sp = frame ? [[10, 2], [21, 3], [8, 7], [23, 8], [15, 0]] : [[11, 3], [20, 2], [9, 8], [22, 7], [16, 1]];
-  for (const [a, b] of sp) { P.p(a, b, C.waterL); P.p(a, b + 1, "#ffffff"); }
-  P.r(13, 4, 6, 3, C.waterL);
+  const [c, x] = makeCanvas(48, 48), P = new Px(x);
+  const oct = (ox, oy, w, h, cut, color) => {
+    P.r(ox + cut, oy, w - cut * 2, h, color);
+    P.r(ox, oy + cut, w, h - cut * 2, color);
+    for (let i = 1; i < cut; i++) {
+      P.r(ox + cut - i, oy + i, w - (cut - i) * 2, 1, color);
+      P.r(ox + cut - i, oy + h - 1 - i, w - (cut - i) * 2, 1, color);
+    }
+  };
+  oct(3, 31, 43, 16, 5, '#436e5740');
+  oct(2, 20, 44, 25, 6, '#426356');
+  oct(3, 20, 42, 22, 6, '#c1c5a2');
+  oct(4, 20, 40, 18, 5, '#f2ecd1');
+  oct(7, 23, 34, 13, 4, '#397f8d');
+  oct(8, 24, 32, 11, 4, C.water);
+  P.r(10, 28 + frame, 7, 1, C.waterL); P.r(30, 29 - frame, 7, 1, C.foam);
+  P.r(17, 33, 14, 1, C.waterL);
+  // A stepped stone pedestal and a small crown of falling water.
+  P.box(18, 28, 12, 4, '#d4d1b2', '#557367');
+  P.r(21, 16, 6, 13, '#658e85'); P.r(21, 16, 2, 13, '#d9e8d2');
+  oct(16, 12, 16, 7, 2, '#446e66'); oct(17, 12, 14, 5, 2, '#c7e2c7');
+  P.r(19, 13, 10, 2, C.waterL);
+  P.r(23, 4, 2, 10, C.foam); P.r(22, 6, 1, 6, C.waterL);
+  for (const [dx,dy] of [[17,18],[29,19],[14,25],[33,24],[22,2]]) {
+    P.r(dx, dy + frame * 2, 2, 3, C.waterL); P.p(dx, dy + frame * 2, C.foam);
+  }
   return c;
 }
 
@@ -1034,8 +1031,8 @@ function drawTurbine(P, bx, by, t) {
    TREES: procedurally shaded canopies (light from top-left) + outline pass
    ========================================================================== */
 const TREE_PALS = {
-  green:  { k: "#1c4424", d: "#2a7432", m: "#3c9a40", l: "#5cb84c", h: "#8cd860", T: "#9a6438", t: "#6a4020", Th: "#b8804c" },
-  lime:   { k: "#1c4424", d: "#30803a", m: "#48a848", l: "#70c058", h: "#a8e070", T: "#9a6438", t: "#6a4020", Th: "#b8804c" },
+  green:  { k: "#28503e", d: "#36784e", m: "#529959", l: "#80bd65", h: "#badf83", T: "#9a6438", t: "#6a4020", Th: "#b8804c" },
+  lime:   { k: "#34553c", d: "#4a8346", m: "#6ca653", l: "#99c872", h: "#d1e998", T: "#9a6438", t: "#6a4020", Th: "#b8804c" },
   autumn: { k: "#5a2410", d: "#b04a1c", m: "#e07228", l: "#f09a3c", h: "#f8cc60", T: "#8a5830", t: "#5a3818", Th: "#a87048" },
   pine:   { k: "#103626", d: "#1c5a3a", m: "#287448", l: "#3a9058", h: "#5cb070", T: "#7a5030", t: "#4a3018", Th: "#9a6a40" },
   blossom:{ k: "#6a2a48", d: "#c8608c", m: "#e88ab0", l: "#f8b0cc", h: "#ffe0ec", T: "#8a5830", t: "#5a3818", Th: "#a87048" },
@@ -1043,40 +1040,29 @@ const TREE_PALS = {
 
 function buildTree(W, H, blobs, trunk, pal, seed) {
   const [c, x] = makeCanvas(W, H), P = new Px(x);
-  // trunk + roots
   const { x: tx, w: tw, y: ty } = trunk;
   P.r(tx - 1, ty, tw + 2, H - ty - 1, pal.k);
   P.r(tx, ty, tw, H - ty - 2, pal.T);
-  P.r(tx + tw - Math.max(1, tw >> 2) - 1, ty, Math.max(1, tw >> 2) + 1, H - ty - 2, pal.t);
-  P.r(tx + 1, ty + 1, 1, H - ty - 4, pal.Th);
-  P.r(tx - 2, H - 3, 2, 2, pal.k); P.r(tx + tw, H - 3, 2, 2, pal.k);
-  P.p(tx - 1, H - 3, pal.t); P.p(tx + tw, H - 3, pal.t);
-  // canopy shading field
-  const val = new Float32Array(W * H).fill(-9);
-  for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
-    let best = -9;
-    for (const [cx, cy, r] of blobs) {
-      const dx = px + 0.5 - cx, dy = py + 0.5 - cy, d = Math.hypot(dx, dy) / r;
-      if (d > 1) continue;
-      const s = -(dx + dy) / (r * 1.5) + (1 - d) * 0.45 - (py / H) * 0.25;
-      if (s > best) best = s;
+  P.r(tx + tw - 2, ty, 2, H - ty - 2, pal.t);
+  P.r(tx, ty + 1, 1, H - ty - 3, pal.Th);
+  P.r(tx - 2, H - 3, tw + 4, 2, pal.k);
+  P.r(tx - 1, H - 3, tw + 1, 1, pal.T);
+  // Stepped leaf masses with a consistent upper-left light source.
+  // Clustered shapes keep the sprite readable at native GBA-like scale.
+  const crown = (cx, cy, r, fill, light) => {
+    for (let dy = -r; dy <= r; dy++) {
+      const half = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy)));
+      P.r(cx - half, cy + dy, half * 2 + 1, 1, pal.k);
+      if (half > 1 && Math.abs(dy) < r) P.r(cx - half + 1, cy + dy, half * 2 - 1, 1, dy > r * .45 ? pal.d : fill);
+      if (dy < 0 && half > 2) P.r(cx - half + 2, cy + dy, Math.max(1, half - 1), 1, light);
     }
-    if (best > -9) val[py * W + px] = best + (hash(px, py, seed) - 0.5) * 0.18;
-  }
-  const inside = (px, py) => px >= 0 && py >= 0 && px < W && py < H && val[py * W + px] > -9;
-  for (let py = 0; py < H; py++) for (let px = 0; px < W; px++) {
-    if (!inside(px, py)) continue;
-    const edge = !inside(px - 1, py) || !inside(px + 1, py) || !inside(px, py - 1) || !inside(px, py + 1);
-    const v = val[py * W + px];
-    const col = edge ? pal.k : v > 0.62 ? pal.h : v > 0.25 ? pal.l : v > -0.12 ? pal.m : pal.d;
-    P.p(px, py, col);
-  }
-  // leaf clusters: little "c" shapes of darker pixels
-  for (let k = 0; k < (W * H) / 40; k++) {
-    const px = (hash(k, seed, 3) * W) | 0, py = (hash(k, seed, 4) * H) | 0;
-    if (inside(px, py) && inside(px + 1, py + 1) && inside(px - 1, py) && val[py * W + px] > -0.1 && val[py * W + px] < 0.6) {
-      P.p(px, py, pal.d); P.p(px + 1, py + 1, pal.d); P.p(px - 1, py - 1, pal.l);
-    }
+  };
+  const clusters = blobs.slice().sort((a,b) => b[1]-a[1]);
+  for (const [cx,cy,r] of clusters) crown(Math.round(cx), Math.round(cy), Math.floor(r), pal.m, pal.l);
+  for (let i=0;i<blobs.length;i++) {
+    const [cx,cy,r] = blobs[i];
+    P.r(Math.round(cx-r*.35), Math.round(cy-r*.5), Math.max(2, Math.floor(r*.55)), 1, pal.h);
+    if (W > 24) { P.r(Math.round(cx+2), Math.round(cy+2), 3, 1, pal.d); P.p(Math.round(cx+4), Math.round(cy+1), pal.d); }
   }
   return c;
 }
@@ -1416,14 +1402,14 @@ function buildSprites() {
   SPR.dogL = SPR.dogR.map(mirror);
   SPR.dogSitR = spr(DOG_SIT, DOG_PAL); SPR.dogSitL = mirror(SPR.dogSitR);
   SPR.robot = [spr(ROBOT, ROBOT_PAL), spr(ROBOT, ROBOT_PAL2)];
-  const SMALL = [[8, 7, 6.5], [4.5, 10.5, 4.5], [11.5, 10.5, 4.5], [8, 12, 5.5]], SMALL_T = { x: 6, w: 4, y: 15 };
+  const SMALL = [[12, 8, 7], [7, 14, 6], [17, 14, 6], [12, 19, 6]], SMALL_T = { x: 10, w: 4, y: 23 };
   const BIG = [[16, 11, 9], [9, 16, 7.5], [23, 16, 7.5], [12, 22, 8], [20, 22, 8], [16, 6, 6]], BIG_T = { x: 13, w: 6, y: 27 };
   SPR.tree = [
-    buildTree(16, 22, SMALL, SMALL_T, TREE_PALS.green, 1),
-    buildTree(16, 22, SMALL, SMALL_T, TREE_PALS.lime, 2),
+    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.green, 1),
+    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.lime, 2),
     buildPine(TREE_PALS.pine, 3),
-    buildTree(16, 22, SMALL, SMALL_T, TREE_PALS.autumn, 4),
-    buildTree(16, 22, SMALL, SMALL_T, TREE_PALS.blossom, 5),
+    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.autumn, 4),
+    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.blossom, 5),
   ];
   SPR.bigTree = [
     buildTree(32, 40, BIG, BIG_T, TREE_PALS.green, 6),

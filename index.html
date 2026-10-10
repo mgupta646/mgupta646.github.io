@@ -6,6 +6,7 @@
   <title>Mehul Gupta · Interactive Portfolio</title>
   <meta name="description" content="Mehul Gupta builds AI products and makes the data underneath them correct. Explore a playable pixel town: AI systems, analytics, product delivery and aerospace engineering. NYU MS Management of Technology, Dec 2026.">
   <meta name="author" content="Mehul Gupta">
+  <link rel="canonical" href="https://mgupta646.github.io/">
   <meta name="theme-color" content="#2a2230">
   <!-- Social previews. If you deploy somewhere other than https://mgupta646.github.io/, update these two URLs. -->
   <meta property="og:type" content="website">
@@ -35,13 +36,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=15">
+  <link rel="stylesheet" href="css/style.css?v=16">
+  <link rel="stylesheet" href="css/refresh.css?v=16">
 </head>
 <body>
   <canvas id="game" aria-label="Mehul Town: an explorable pixel-art portfolio"></canvas>
 
   <!-- ================= HUD ================= -->
   <div id="hud" hidden>
+    <div id="district" class="district" aria-hidden="true"><small>YOU ARE EXPLORING</small><b>CENTRAL PLAZA</b></div>
     <div class="hud-tl">
       <div class="namecard win">
         <b>MEHUL GUPTA</b>
@@ -54,7 +57,7 @@
     </div>
 
     <div class="hud-tr">
-      <button id="btnQuick" class="btn hudbtn primary" title="Read everything on one page (Q)">QUICK VIEW</button>
+      <button id="btnQuick" class="btn hudbtn primary" title="Selected work and case studies (Q)">QUICK VIEW</button>
       <button id="btnMenu" class="btn hudbtn" title="Menu (Esc)">MENU</button>
     </div>
 
@@ -111,25 +114,25 @@
       <footer class="pfoot">
         <button class="btn" id="pPrev">◀ PREV</button>
         <span id="pCount"></span>
-        <button class="btn" id="pQuick">READ ALL</button>
+        <button class="btn" id="pQuick">READ CASE</button>
         <button class="btn" id="pNext">NEXT ▶</button>
       </footer>
     </div>
   </div>
 
   <!-- ================= Quick View ================= -->
-  <div id="quick" hidden>
+  <main id="quick" hidden aria-label="Selected work and case studies" tabindex="-1">
     <div class="qbar">
-      <b>MEHUL GUPTA · QUICK VIEW</b>
+      <b>MEHUL GUPTA <span class="qbar-label">/ FIELD NOTES</span></b>
       <button class="btn" id="quickClose">◀ BACK TO TOWN</button>
     </div>
     <div id="quickInner" class="qinner"></div>
-  </div>
+  </main>
 
   <!-- ================= Quest log ================= -->
-  <div id="questlog" class="overlay" hidden role="dialog" aria-modal="true">
+  <div id="questlog" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="questTitle">
     <div class="log win">
-      <header class="phead"><div><h2>QUEST LOG</h2><small>Landmarks discovered: <b id="logCount"></b> · press GO to auto-walk</small></div><button class="x" id="logClose" aria-label="Close">×</button></header>
+      <header class="phead"><div><h2 id="questTitle">QUEST LOG</h2><small>Landmarks discovered: <b id="logCount"></b> · press GO to auto-walk</small></div><button class="x" id="logClose" aria-label="Close">×</button></header>
       <ul id="logList"></ul>
     </div>
   </div>
@@ -186,15 +189,17 @@
   <!-- ================= Title screen ================= -->
   <div id="title">
     <div class="title-card">
-      <p class="t-pre">WELCOME TO</p>
+      <div class="edition"><span class="status-dot"></span> PORTFOLIO / EXPLORER EDITION <span>01</span></div>
+      <p class="t-pre">A SMALL TOWN. A WORLD OF WORK.</p>
       <h1 class="t-logo"><span>MEHUL</span><span>TOWN</span></h1>
-      <p class="t-sub">The interactive portfolio of <b>Mehul Gupta</b></p>
-      <p class="t-roles">AI SYSTEMS · ANALYTICS · PRODUCT · AEROSPACE</p>
+      <p class="t-sub">Mehul Gupta</p>
+      <p class="t-tagline">I build AI products and make the data underneath them correct.</p>
+      <p class="t-roles">AI SYSTEMS · ANALYTICS · PRODUCT DELIVERY</p>
       <div class="t-btns">
-        <button class="btn big primary" id="startBtn">▶ START ADVENTURE</button>
-        <button class="btn big" id="quickBtn">QUICK VIEW (2-MIN READ)</button>
+        <button class="btn big primary" id="startBtn">▶ EXPLORE THE TOWN</button>
+        <button class="btn big" id="quickBtn">SELECTED WORK · 2 MIN</button>
       </div>
-      <p class="t-press">PRESS ENTER</p>
+      <div class="title-links"><a href="assets/Mehul_Gupta_Portfolio.pdf" download>Portfolio PDF ↗</a><a href="mailto:mg8671@nyu.edu">Get in touch ↗</a><a href="https://github.com/mgupta646" target="_blank" rel="noopener">GitHub ↗</a></div>
       <p class="t-status">NYU MS · Dec 2026 · Available Jan 2027 · Brooklyn, NY</p>
     </div>
   </div>
@@ -208,11 +213,12 @@
     </div>
   </noscript>
 
-  <script src="js/data.js?v=15"></script>
-  <script src="js/sprites.js?v=15"></script>
-  <script src="js/world.js?v=15"></script>
-  <script src="js/audio.js?v=15"></script>
-  <script src="js/ui.js?v=15"></script>
-  <script src="js/game.js?v=15"></script>
+  <script src="js/data.js?v=16"></script>
+  <script src="js/sprites.js?v=16"></script>
+  <script src="js/world.js?v=16"></script>
+  <script src="js/audio.js?v=16"></script>
+  <script src="js/selected-work.js?v=16"></script>
+  <script src="js/ui.js?v=16"></script>
+  <script src="js/game.js?v=16"></script>
 </body>
 </html>

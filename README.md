@@ -7,10 +7,12 @@ An interactive, GBA-style pixel town where every building is a piece of my work:
 - **Explore:** walk with arrow keys / WASD, click or tap to walk, Shift to run
 - **Panels open automatically** when you walk up to a landmark and close when you leave
 - **Guided tour:** the red **TOUR** button lets visitors choose what to see; the guide walks them there and narrates
-- **Quick View:** the whole portfolio on one scrolling page, for recruiters in a hurry
+- **Quick View:** a two-minute selected-work overview, with AI/product, analytics and engineering filters. Each case study has its own shareable reading link; all 22 chapters remain available in the archive selector.
 - Quest log, minimap, day/night, a train, a rocket you can launch, a dog named Byte, and a secret code
 
-No build step, no frameworks, no dependencies. Plain HTML/CSS/JS. All pixel art is drawn in code (`js/sprites.js`), so there are no image assets to license.
+No build step, no frameworks, no dependencies. Plain HTML/CSS/JS. Original pixel art is drawn in code (`js/sprites.js`). Screenshots show the projects themselves. The explorer edition uses an emerald-and-paper interface, clustered tree canopies, bevelled paths, a fountain and district labels inspired by handheld-era RPGs.
+
+Music is off by default and can be enabled in the game menu. Reading mode pauses music and the game loop, isolates covered controls from keyboard navigation, and moves focus to the reading heading. Reduced-motion preferences disable camera easing, ambient effects, flashes and screen shake.
 
 ---
 
@@ -46,7 +48,7 @@ then open http://localhost:8000.
 
 ## Edit the content
 
-All text and links live in **`js/data.js`**: each landmark is one entry in `SECTIONS`.
+Full case studies and links live in **`js/data.js`**: each landmark is one entry in `SECTIONS`. The concise project summaries, status labels and role-based selections live in **`js/selected-work.js`**. Keep summary claims consistent with the full case studies when updating either file.
 
 | Want to…                         | Edit                                                        |
 | -------------------------------- | ----------------------------------------------------------- |
@@ -62,6 +64,7 @@ After editing, bump `?v=` on the CSS/JS links in `index.html` so browsers fetch 
 ## Share links
 
 - `/#quick`: opens Quick View directly (great for a resume or email signature)
+- `/#q-vlab`, `/#q-rosi`, `/#q-citibike`, … opens a case study in reading mode, with refresh and Back/Forward support
 - `/#tour`: opens the guided-tour planner
 - `/#vlab`, `/#rosi`, `/#magic`, `/#aviation`, `/#citibike`, … opens one landmark's panel
 
@@ -70,7 +73,9 @@ After editing, bump `?v=` on the CSS/JS links in `index.html` so browsers fetch 
 ```
 index.html          page shell, HUD, panels, tour UI, metadata
 css/style.css       GBA-style UI
+css/refresh.css     explorer-edition theme, responsive overview and reader
 js/data.js          ← all portfolio content
+js/selected-work.js concise project summaries and role-based selections
 js/sprites.js       pixel art (characters, buildings, trees, tiles), drawn in code
 js/world.js         the 64×48 town map, landmarks, collisions
 js/game.js          engine: movement, pathfinding, guided tour, train, rendering, input
