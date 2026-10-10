@@ -631,9 +631,10 @@ const NPC_LINES = {
   guide: [
     "Hello there! Welcome to MEHUL TOWN!",
     "Every building here is a piece of Mehul's work: AI products, data, software, aerospace and more.",
+    "Walk up to anything with a sign and its story opens. Want me to show you around? Press the red TOUR button on the left!",
   ],
   guideIdle: [
-    "Need directions? Press the red TOUR button and I'll walk you around!",
+    "Need directions? Press the red TOUR button on the left and I'll walk you around!",
     "In a hurry? QUICK VIEW (top right) puts everything on one page.",
   ],
   jogger: [

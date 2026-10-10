@@ -300,7 +300,7 @@
     if (n.id === "cat") Audio8.play("meow");
     if (n.id === "guide") {
       if (tour.state === "active") { talk("GUIDE", ["Lead the way, or press NEXT STOP and I'll take you there!"]); return; }
-      talk("GUIDE", NPC_LINES.guideIdle, () => openPlanner(tour.state === "paused" ? "resume" : "new"));
+      talk("GUIDE", NPC_LINES.guideIdle);
       return;
     }
     talk(n.name, n.lines);
@@ -1101,7 +1101,7 @@
     setTimeout(() => {
       if (found.size === 0) {
         guide.dir = "right";
-        talk("GUIDE", NPC_LINES.guide, () => { guide.dir = "down"; openPlanner("new"); });
+        talk("GUIDE", NPC_LINES.guide, () => { guide.dir = "down"; tourBtn.classList.add("pulse"); });
       } else UI.toast(`Welcome back! ★ ${found.size}/${TOTAL} discovered`);
     }, 500);
   }
