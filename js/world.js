@@ -18,7 +18,7 @@ const World = {
 /* Tile codes
    G grass · F flowers · Y tall grass · P path · Z plaza · W water · L lily
    S sand · D deck · C concrete · R track · H fence · B bush · O rock
-   A runway · K rails · X rail crossing                                     */
+   A runway · K rails · X rail crossing · V wooden bridge                                     */
 
 function buildWorld() {
   const g = World.ground = [...Array(MAP_H)].map(() => Array(MAP_W).fill("G"));
@@ -56,6 +56,20 @@ function buildWorld() {
   // Planned garden edges frame the plaza without interrupting walking routes.
   for (const y of [18, 19, 20, 21, 24, 25, 26]) for (const x of [25, 38]) if (g[y][x] === 'G') set(x, y, 'F');
   for (const x of [27, 28, 29, 34, 35, 36]) if (g[27][x] === 'G') set(x, 27, 'F');
+
+  // A continuous creek connects the campus with the southern lily pond.
+  // Bridges are ground tiles, so click-to-walk and keyboard collision agree.
+  rect(28,3,2,14,'W'); rect(24,16,6,2,'W'); rect(24,18,2,11,'W');
+  rect(23,28,3,2,'W'); rect(28,13,2,1,'V'); rect(24,22,2,2,'V');
+  // Riverside promenades and small forecourts give each district an address.
+  rect(26,8,2,5,'Z'); rect(30,5,1,8,'P'); rect(23,20,1,2,'P');
+  rect(26,14,1,2,'P'); rect(26,27,2,3,'P');
+  rect(4,19,6,2,'Z'); rect(36,9,7,3,'Z'); rect(46,9,3,3,'Z');
+  rect(3,33,8,2,'Z'); rect(33,34,5,3,'D');
+  // Orchard, formal campus beds and a shaded garden beside the station.
+  for(const [bx,by,bw,bh] of [[12,10,1,3],[22,10,1,3],[35,9,1,3],[43,9,1,3],[3,19,1,2],[10,19,1,1],[28,34,5,1]]) rect(bx,by,bw,bh,'F');
+  // Clipped garden corners soften the plaza; the fountain remains the focal point.
+  for (const [gx,gy] of [[26,18],[27,18],[36,18],[37,18],[26,19],[37,19],[26,25],[37,25],[26,26],[27,26],[36,26],[37,26]]) set(gx,gy,'F');
   // nature
   rect(12, 15, 5, 4, "Y"); rect(33, 15, 4, 3, "Y"); rect(5, 42, 6, 2, "Y"); rect(56, 42, 4, 2, "Y"); rect(2, 26, 2, 5, "Y");
   for (let x = 3; x <= 10; x++) if (x !== 7) set(x, 9, "H");       // garden fence
@@ -75,7 +89,7 @@ function buildWorld() {
     if (edge < 2 || (edge === 2 && hash(x, y, 7) < 0.45)) treeAt.set(x + "," + y, hash(x, y, 8) < 0.3 ? 2 : hash(x, y, 9) < 0.5 ? 0 : 1);
   }
   const inner = [[3, 12], [12, 9], [34, 9], [44, 11], [49, 10], [26, 15], [37, 16], [44, 25], [3, 25], [11, 37],
-    [21, 36], [42, 38], [37, 38], [60, 31], [8, 43], [20, 43], [27, 43], [40, 44], [52, 43], [58, 42], [36, 27], [17, 25], [57, 20]];
+    [21, 36], [42, 38], [37, 38], [60, 31], [8, 43], [20, 43], [27, 43], [40, 44], [52, 43], [58, 42], [36, 27], [17, 25], [12, 6], [12, 11], [23, 5], [23, 8], [34, 6], [44, 6], [5, 37], [8, 38], [15, 36], [17, 39], [57, 20]];
   for (const [x, y] of inner) treeAt.set(x + "," + y, [0, 1, 3, 4, 0, 1][(hash(x, y, 13) * 6) | 0]);
   World.bigTrees = [[11, 5, 0], [19, 15, 3], [8, 25, 1], [58, 24, 0], [45, 38, 2], [14, 40, 3]].map(([x, y, v]) => ({ x, y, v }));
 
@@ -129,7 +143,7 @@ function buildWorld() {
   add({ id: "bench", x: 35, y: 18, w: 2, h: 1, spr: "bench" });
   add({ id: "pot", x: 30, y: 18, w: 1, h: 1, spr: "pot" });
   add({ id: "pot", x: 33, y: 18, w: 1, h: 1, spr: "pot" });
-  add({ id: "signpost", x: 29, y: 12, w: 1, h: 1, spr: "signpost" });
+  add({ id: "signpost", x: 30, y: 12, w: 1, h: 1, spr: "signpost" });
   add({ id: "signpost2", x: 29, y: 28, w: 1, h: 1, spr: "signpost2", solid: true });
   // Sports
   add({ id: "gym", x: 4, y: 28, w: 6, h: 5, spr: "gym", night: "gymLit", section: "gym" });
@@ -155,6 +169,7 @@ function buildWorld() {
     add({ id: "lamp", x, y, w: 1, h: 1, spr: "lamp", lamp: true });
 
   for (const b of World.bigTrees) for (let i = 0; i < 2; i++) { solid[b.y][b.x + i] = true; treeAt.delete(b.x + i + "," + b.y); }
+  for (const [key] of treeAt) { const [x,y]=key.split(',').map(Number); if (!'GF'.includes(g[y][x])) treeAt.delete(key); }
   World.trees = [...treeAt].map(([k, v]) => { const [x, y] = k.split(",").map(Number); return { x, y, v }; });
   for (const t of World.trees) { solid[t.y][t.x] = true; if (g[t.y][t.x] !== "G" && g[t.y][t.x] !== "F") g[t.y][t.x] = "G"; }
   for (const b of World.bigTrees) for (let i = 0; i < 2; i++) if (!"GF".includes(g[b.y][b.x + i])) g[b.y][b.x + i] = "G";
@@ -214,11 +229,19 @@ function renderGround(frame) {
       case "G": drawGrass(P, X, Y, tx, ty); break;
       case "F": drawGrass(P, X, Y, tx, ty); drawFlower(P, X, Y, tx, ty, frame); break;
       case "Y": drawTall(P, X, Y, frame); break;
-      case "P": drawPath(P, X, Y, tx, ty, nbOf("PZDCAX")); break;
+      case "P": drawPath(P, X, Y, tx, ty, nbOf("PZDCAXV")); break;
       case "Z": drawPlaza(P, X, Y, tx, ty); break;
-      case "W": drawWater(P, X, Y, tx, ty, nbOf("WL"), frame); break;
-      case "L": drawWater(P, X, Y, tx, ty, nbOf("WL"), frame); drawLily(P, X, Y); break;
+      case "W": drawWater(P, X, Y, tx, ty, nbOf("WLV"), frame); break;
+      case "L": drawWater(P, X, Y, tx, ty, nbOf("WLV"), frame); drawLily(P, X, Y); break;
       case "S": drawSand(P, X, Y, tx, ty); break;
+      case "V": {
+        drawDeck(P,X,Y,tx,ty);
+        P.r(X,Y,16,1,'#e9cc92'); P.r(X,Y+14,16,2,'#79553f');
+        for(const dx of [1,13]) { P.r(X+dx,Y+1,2,13,'#c9a16d'); P.p(X+dx,Y+2,'#f7dfb0'); }
+        if(!same(tx,ty-1,'V')) { P.r(X,Y-3,16,2,'#79553f'); P.r(X,Y-3,16,1,'#eed3a1'); }
+        if(!same(tx,ty+1,'V')) { P.r(X,Y+12,16,2,'#79553f'); P.r(X,Y+12,16,1,'#eed3a1'); }
+        break;
+      }
       case "D": drawDeck(P, X, Y, tx, ty); break;
       case "C": drawConcrete(P, X, Y, tx, ty, nbOf("C")); break;
       case "R": drawTrack(P, X, Y, tx, ty, nbOf("R")); break;
@@ -229,6 +252,22 @@ function renderGround(frame) {
       case "K": drawRails(P, X, Y, tx, ty, false); break;
       case "X": drawPath(P, X, Y, tx, ty, { u: true, d: true, l: true, r: true }); drawRails(P, X, Y, tx, ty, true); break;
     }
+  }
+
+  for(let ty=3;ty<34;ty++) for(let tx=21;tx<31;tx++) {
+    if(!'WL'.includes(g[ty][tx])) continue;
+    const X=tx*T,Y=ty*T;
+    if(!same(tx-1,ty,'WLV')) { P.r(X,Y,2,16,'#e2d5a7'); P.r(X+2,Y,1,16,'#73999a'); }
+    if(!same(tx+1,ty,'WLV')) { P.r(X+14,Y,2,16,'#a6b68b'); P.r(X+13,Y,1,16,'#3b8c9c'); }
+    if(hash(tx,ty,71)>.78) { P.r(X+5,Y+8,5,2,'#73ae78'); P.p(X+6,Y+7,'#c5d997'); }
+  }
+  for(let ty=3;ty<41;ty++) for(let tx=3;tx<61;tx++) {
+    if(g[ty][tx]!=='Z') continue;
+    const X=tx*T,Y=ty*T;
+    if(!same(tx,ty-1,'ZPV')) { P.r(X,Y,16,2,'#f6edce'); P.r(X,Y+2,16,1,'#b9b99e'); }
+    if(!same(tx,ty+1,'ZPV')) P.r(X,Y+14,16,2,'#a9ad90');
+    if(!same(tx-1,ty,'ZPV')) P.r(X,Y,2,16,'#f6edce');
+    if(!same(tx+1,ty,'ZPV')) P.r(X+14,Y,2,16,'#a9ad90');
   }
   // An inlaid compass marks the meeting point in the central plaza.
   const mx = 32 * T, my = 24 * T;

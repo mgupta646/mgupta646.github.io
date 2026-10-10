@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Mehul Gupta · Interactive Portfolio</title>
+  <title>Mehul Town · A Playable Portfolio</title>
   <meta name="description" content="Mehul Gupta builds AI products and makes the data underneath them correct. Explore a playable pixel town: AI systems, analytics, product delivery and aerospace engineering. NYU MS Management of Technology, Dec 2026.">
   <meta name="author" content="Mehul Gupta">
   <link rel="canonical" href="https://mgupta646.github.io/">
@@ -35,9 +35,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=17">
-  <link rel="stylesheet" href="css/refresh.css?v=17">
-  <link rel="stylesheet" href="css/field-notes.css?v=17">
+  <link rel="stylesheet" href="css/style.css?v=19">
+  <link rel="stylesheet" href="css/refresh.css?v=19">
+  <link rel="stylesheet" href="css/field-notes.css?v=19">
 </head>
 <body>
   <canvas id="game" aria-label="Mehul Town: an explorable pixel-art portfolio"></canvas>
@@ -188,29 +188,19 @@
 
   <!-- ================= Title screen ================= -->
   <div id="title">
-    <div class="title-shell">
-      <header class="landing-nav"><span class="landing-brand"><i aria-hidden="true">M</i> MEHUL GUPTA <small>PORTFOLIO / 2026</small></span><a href="mailto:mg8671@nyu.edu">LET'S TALK <span aria-hidden="true">↗</span></a></header>
-      <div class="landing-main">
-        <div class="title-card">
-          <p class="t-pre"><span class="status-dot"></span> ENGINEERING ROOTS. PRODUCT MINDSET.</p>
-          <h1 class="landing-name">Mehul Gupta<span>.</span></h1>
-          <p class="landing-headline">Complex data.<br>Clear decisions.<br><em>Useful products.</em></p>
-          <p class="landing-intro">I build AI systems and the data foundations they depend on. Aerospace-trained. Building at NYU Stern. Curious about what comes next.</p>
-          <div class="t-btns">
-            <button class="btn big primary" id="quickBtn">VIEW SELECTED WORK <span aria-hidden="true">↗</span></button>
-            <button class="btn big" id="startBtn"><span aria-hidden="true">▶</span> PLAY THE PORTFOLIO</button>
-          </div>
-          <div class="title-links"><a href="assets/Mehul_Gupta_Portfolio.pdf" download>Portfolio PDF ↓</a><a href="https://www.linkedin.com/in/mehulmg/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://github.com/mgupta646" target="_blank" rel="noopener">GitHub ↗</a></div>
-        </div>
-        <figure class="town-postcard">
-          <div class="postcard-bar"><span><i aria-hidden="true"></i> MEHUL TOWN</span><span>EXPLORER EDITION</span></div>
-          <img src="assets/town-cover.png" width="1536" height="1024" alt="An original pixel-art research town with an AI lab, library, rocket workshop and a river running through its gardens." fetchpriority="high">
-          <figcaption><span>A small town. A world of work.</span><span class="postcard-coord">AI · DATA · AEROSPACE</span></figcaption>
-          <span class="postcard-stamp" aria-hidden="true">BUILT<br>TO EXPLORE<br>✦</span>
-        </figure>
-      </div>
-      <footer class="landing-footer"><span><span class="status-dot"></span> AVAILABLE JANUARY 2027</span><span>BROOKLYN, NEW YORK · OPEN TO RELOCATION</span><span>WALK. DISCOVER. CONNECT.</span></footer>
+    <div class="game-edition" aria-hidden="true"><span>PLAYER 01 / MEHUL GUPTA</span><span>EXPLORER EDITION</span></div>
+    <header class="game-heading">
+      <p class="game-eyebrow">AN EXPLORABLE PORTFOLIO</p>
+      <h1 class="game-logo"><span>MEHUL</span><span>TOWN</span></h1>
+      <p class="game-byline">Mehul Gupta · AI / Data / Aerospace</p>
+    </header>
+    <div class="start-menu">
+      <p class="game-invite">Every landmark is a chapter.<br>Walk into my world. Discover my work.</p>
+      <button class="btn primary" id="startBtn"><span class="start-arrow" aria-hidden="true">▶</span> START GAME <span class="start-key" aria-hidden="true">ENTER ↵</span></button>
+      <button id="quickBtn" class="game-read">Just here to read? Open portfolio ↗</button>
     </div>
+    <div class="game-controls"><span><kbd>WASD</kbd> / <kbd>↑↓←→</kbd> MOVE</span><span><kbd>CLICK</kbd> TO EXPLORE</span><span class="touch-instruction">TOUCH CONTROLS AVAILABLE</span></div>
+    <p class="game-footer">22 LANDMARKS · ONE CURIOUS BUILDER · YOUR ADVENTURE</p>
   </div>
 
   <noscript>
@@ -222,13 +212,13 @@
     </div>
   </noscript>
 
-  <script src="js/data.js?v=17"></script>
-  <script src="js/sprites.js?v=17"></script>
-  <script src="js/world.js?v=17"></script>
-  <script src="js/audio.js?v=17"></script>
-  <script src="js/selected-work.js?v=17"></script>
-  <script src="js/field-notes.js?v=17"></script>
-  <script src="js/ui.js?v=17"></script>
-  <script src="js/game.js?v=17"></script>
+  <script src="js/data.js?v=19"></script>
+  <script src="js/sprites.js?v=19"></script>
+  <script src="js/world.js?v=19"></script>
+  <script src="js/audio.js?v=19"></script>
+  <script src="js/selected-work.js?v=19"></script>
+  <script src="js/field-notes.js?v=19"></script>
+  <script src="js/ui.js?v=19"></script>
+  <script src="js/game.js?v=19"></script>
 </body>
 </html>

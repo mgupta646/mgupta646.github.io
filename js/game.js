@@ -49,7 +49,7 @@
   const npc = (id) => npcs.find((n) => n.id === id);
   const guide = npc("guide");
 
-  const birds = [[24, 27], [25, 27.4], [40, 24.5], [41, 25], [13, 21.2], [53, 25.4], [20, 12.6], [45, 42.4], [8, 11.5]].map(([x, y], i) => ({
+  const birds = [[22, 27], [23, 27.4], [40, 24.5], [41, 25], [13, 21.2], [53, 25.4], [20, 12.6], [45, 42.4], [8, 11.5]].map(([x, y], i) => ({
     hx: x * T + 4, hy: y * T + 8, x: x * T + 4, y: y * T + 8, st: "idle", t: Math.random() * 2, vx: 0, vy: 0, face: i % 2, hop: 0, re: 0,
   }));
   const flies = [[5, 8], [22, 27], [52, 8], [30, 43], [14, 17], [44, 13], [8, 43], [58, 21], [36, 33]].map(([x, y]) => ({ ax: x * T, ay: y * T, ph: Math.random() * 6 }));
@@ -596,7 +596,7 @@
     }
     if ((smokeT -= dt) <= 0) {
       smokeT = 0.45;
-      for (const o of World.objects) if (o.smoke) parts.push({ x: o.b.x + 62, y: o.b.y + 1, vx: 4 + Math.random() * 3, vy: -10, g: -2, life: 2.4, max: 2.4, s: 2 + (Math.random() < 0.5 ? 1 : 0), c: "#e8e8f0", smoke: true });
+      for (const o of World.objects) if (o.smoke) parts.push({ x: o.b.x + 70, y: o.b.y + 1, vx: 4 + Math.random() * 3, vy: -10, g: -2, life: 2.4, max: 2.4, s: 2 + (Math.random() < 0.5 ? 1 : 0), c: "#e8e8f0", smoke: true });
     }
     updateTrain(dt);
   }
@@ -660,8 +660,8 @@
     let tx, ty;
     if (!started) {
       attractT += dt;
-      tx = 31 * T - VW * (innerWidth > 900 ? 0.72 : 0.5) + (reducedMotion.matches ? 0 : Math.sin(attractT * 0.05) * 26);
-      ty = 20 * T - VH * 0.45 + (reducedMotion.matches ? 0 : Math.sin(attractT * 0.06) * 14);
+      tx = 31 * T - VW * 0.5 + (reducedMotion.matches ? 0 : Math.sin(attractT * 0.05) * 26);
+      ty = 10.5 * T - VH * 0.45 + (reducedMotion.matches ? 0 : Math.sin(attractT * 0.06) * 14);
     } else if (camFocus) { tx = camFocus.x - VW / 2; ty = camFocus.y - VH / 2; }
     else {
       let vw = VW, vh = VH;
@@ -683,8 +683,8 @@
     dpr = Math.min(window.devicePixelRatio || 1, 3);
     const cw = Math.max(64, Math.floor(innerWidth * dpr)), ch = Math.max(64, Math.floor(innerHeight * dpr));
     cv.width = cw; cv.height = ch;
-    const across = innerWidth < 720 ? 12 : 22;
-    scale = Math.max(2, Math.round(Math.min(cw / (T * across), ch / (T * across * 0.62))));
+    const across = started ? (innerWidth < 720 ? 12 : 22) : (innerWidth < 720 ? 26 : 46);
+    scale = Math.max(started ? 2 : 1, Math.round(Math.min(cw / (T * across), ch / (T * across * 0.62))));
     VW = Math.ceil(cw / scale); VH = Math.ceil(ch / scale);
     buf.width = VW; buf.height = VH;
     bctx.imageSmoothingEnabled = false; ctx.imageSmoothingEnabled = false;
@@ -764,7 +764,7 @@
       const img = sit ? (pet.face === "R" ? SPR.dogSitR : SPR.dogSitL) : (pet.face === "R" ? SPR.dogR : SPR.dogL)[pet.moving ? Math.floor(t * 10) % 2 : 0];
       bctx.drawImage(img, X, Y);
     } });
-    if (started) list.push({ y: player.py + T + 0.2, d: () => drawChar(SPR.mehul, player, walkPose(player)) });
+    list.push({ y: player.py + T + 0.2, d: () => drawChar(SPR.mehul, player, walkPose(player)) });
     for (const b of birds) {
       if (b.st === "gone" || !inView(b.x - 4, b.y - 6, 8, 6)) continue;
       list.push({ y: b.st === "fly" ? 1e6 : b.y + 4, d: () => {
@@ -844,6 +844,7 @@
     ctx.font = `700 ${Math.round(fs * 1.6)}px "Pixelify Sans", sans-serif`;
     ctx.textBaseline = "middle"; ctx.textAlign = "center";
     for (const [id, L] of Object.entries(World.labels)) {
+      if (!started) continue;
       if (!inView(L.x - 60, L.y - 20, 120, 40)) continue;
       const f = found.has(id), isNext = tour.state === "active" && tour.current === id;
       const bob = (!f || isNext) && Math.floor(t * 2.5) % 2 ? scale : 0;
@@ -914,7 +915,7 @@
   mm.width = MAP_W * MS; mm.height = MAP_H * MS; mm.style.width = mm.width + "px"; mm.style.height = mm.height + "px";
   const mmBase = (() => {
     const [c, x] = makeCanvas(MAP_W * MS, MAP_H * MS);
-    const COL = { G: "#78c858", F: "#88d060", Y: "#3e9a48", P: "#e4cc94", Z: "#dcd4c4", W: "#4c94f0", L: "#4c94f0", S: "#f0dca0", D: "#c48c54", C: "#b4b8bc", R: "#cc5e40", H: "#f4ecd8", B: "#2c6c30", O: "#8a8f98", A: "#5c6068", K: "#7a6a58", X: "#e4cc94" };
+    const COL = { G: "#78c858", F: "#88d060", Y: "#3e9a48", P: "#e4cc94", Z: "#dcd4c4", W: "#53acbb", L: "#53acbb", V: "#c9a16d", S: "#f0dca0", D: "#c48c54", C: "#b4b8bc", R: "#cc5e40", H: "#f4ecd8", B: "#2c6c30", O: "#8a8f98", A: "#5c6068", K: "#7a6a58", X: "#e4cc94" };
     for (let y = 0; y < MAP_H; y++) for (let i = 0; i < MAP_W; i++) { x.fillStyle = COL[World.ground[y][i]] || "#78c858"; x.fillRect(i * MS, y * MS, MS, MS); }
     x.fillStyle = "#2a6434"; for (const t of World.trees) x.fillRect(t.x * MS, t.y * MS, MS, MS);
     for (const b of World.bigTrees) x.fillRect(b.x * MS, b.y * MS, MS * 2, MS);
@@ -1092,6 +1093,8 @@
   function start(opts = {}) {
     if (started) return;
     started = true;
+    resize();
+    document.title = 'Mehul Town · Mehul Gupta';
     $("#title").hidden = true; $("#hud").hidden = false; tourBtn.hidden = false;
     if (isTouch) $("#touch").hidden = false;
     toggleHelp(store.get("mt_help", !isTouch && innerWidth > 720));
@@ -1144,6 +1147,8 @@
   function frame(now) {
     frameId = null;
     if (document.hidden || !$("#quick").hidden) return;
+    // Ambient title animation needs only 30fps; gameplay keeps native rAF timing.
+    if (!started && now - last < 1000 / 30) { frameId = requestAnimationFrame(frame); return; }
     // rAF timestamps can precede t0 on the first frame: clamp so t and dt are never negative
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)), t = Math.max(0, (now - t0) / 1000); last = Math.max(last, now);
     bumpCD -= dt; shake = Math.max(0, shake - dt); flash = Math.max(0, flash - dt * 1.5);
@@ -1160,8 +1165,8 @@
       const district = player.ty < 14 ? (player.tx < 30 ? 'CAMPUS QUARTER' : 'AI & ENERGY PARK') : player.ty > 37 ? 'RAILWAY STATION' : player.ty > 26 ? (player.tx > 37 ? 'AEROSPACE BASE' : 'GARDEN DISTRICT') : player.tx > 48 ? 'AIRFIELD' : 'CENTRAL PLAZA';
       const label = $('#district b'); if (label.textContent !== district) label.textContent = district;
     }
-    // The illustrated title is opaque. Keep the game idle until it is visible.
-    if (started) frameId = requestAnimationFrame(frame);
+    // The title uses the real, animated town as its live background.
+    frameId = requestAnimationFrame(frame);
   }
   resumeFrames();
   // handy for debugging in the console; tick(sec) advances the simulation without rendering

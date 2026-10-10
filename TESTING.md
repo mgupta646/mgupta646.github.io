@@ -24,6 +24,17 @@ Run locally with `python -m http.server 8765 --bind 127.0.0.1`, then open `http:
 - New raster cover is 1536 × 1024, approximately 3.7 MB; it is reused from browser cache between the title and reader. Gameplay rendering is idle behind the opaque title and paused in reading mode.
 - LinkedIn's public-facing profile content was reviewed in the signed-in session. Graduate Teaching Fellow dates are included in the overview. December 2026 follows the supplied portfolio PDF and LinkedIn About; the Education entry still differs and was not edited.
 
+## Playable-town remaster, October 10, 2026
+
+This replaces the earlier illustrated landing with a live game title screen. The town now remains animated behind the title (30fps), with reading mode and hidden tabs still suspending rendering.
+
+- `node tests/world-routes.cjs` checks all 22 chapters and every interactive prop for reachability from spawn, every bridge tile, and the six 16×20 explorer source frames. Passed with 2,057 reachable ground tiles.
+- Seven major building sprites were redrawn: home, campus hall, AI lab, MaGic tower, gym, market and station. Browser inspection caught and corrected the dome and barrel-roof shading order.
+- Start Game enters the playable world; the five-stop recruiter tour walks to V-Lab and opens its panel after the map changes.
+- Desktop title and gameplay were visually inspected at 1280×720 and the title at 320×740. The optional reader opens and returns to the town; its 320px layout has no horizontal overflow. Keyboard Enter activates Start Game.
+- Final local UI checks used an uncached server at port 8766 after intermittent missing-script responses from the earlier preview server. The fresh session successfully loaded the world, audio integration and reader.
+- JavaScript syntax and whitespace checks are run before publishing.
+
 ## Validation limits
 
 These are browser viewport checks, not physical iOS/Android device tests. Reduced-motion effects and animation/audio suspension were reviewed in the implementation; dedicated assistive-technology, battery and performance benchmarks have not been run. The existing external project demos and portfolio PDF were retained; they were not comprehensively audited or rewritten.

@@ -12,6 +12,8 @@ An interactive, GBA-style pixel town where every building is a piece of my work:
 
 No build step, no frameworks, no dependencies. Plain HTML/CSS/JS. Original pixel art is drawn in code (`js/sprites.js`). Screenshots show the projects themselves. The explorer edition uses an emerald-and-paper interface, clustered tree canopies, bevelled paths, a fountain and district labels inspired by handheld-era RPGs.
 
+The opening is a game title screen over the living town, with Start Game as the primary action. Water, residents, birds and the camera animate in the background. The town includes a campus-to-pond creek, wooden crossings, garden courtyards, seven individually drawn buildings, larger textured trees and an explorer with a satchel. Ambient title animation is capped at 30fps; the game retains normal animation timing.
+
 Music is off by default and can be enabled in the game menu. Reading mode pauses music and the game loop, isolates covered controls from keyboard navigation, and moves focus to the reading heading. Reduced-motion preferences disable camera easing, ambient effects, flashes and screen shake.
 
 ---
@@ -76,7 +78,7 @@ After editing, bump `?v=` on the CSS/JS links in `index.html` so browsers fetch 
 index.html          page shell, HUD, panels, tour UI, metadata
 css/style.css       GBA-style UI
 css/refresh.css     explorer-edition theme, responsive overview and reader
-css/field-notes.css illustrated landing, case briefs and engineering lab
+css/field-notes.css game title screen, case briefs and engineering lab
 js/data.js          ← all portfolio content
 js/selected-work.js concise project summaries and role-based selections
 js/field-notes.js   case briefs and reproducible engineering demos
@@ -86,6 +88,7 @@ js/game.js          engine: movement, pathfinding, guided tour, train, rendering
 js/ui.js            panels, Quick View, quest log, menu
 js/audio.js         chiptune SFX + background music
 assets/             screenshots, portfolio PDF, music, social preview image
+tests/world-routes.cjs landmark and bridge reachability regression check
 ```
 
 ## Credits

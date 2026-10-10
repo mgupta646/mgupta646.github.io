@@ -233,16 +233,44 @@ const PALS = {
   jogger: { K:"#2a2230", H:"#d07a28", h:"#f0a050", S:"#f0c8a0", s:"#d0a07c", P:"#e04848", p:"#a82828", L:"#ff7070", W:"#ffffff", J:"#303038", j:"#202028" },
 };
 
+
+const EXPLORER = {
+  down: [
+    '.....KKKKK......','....KHHhHHKK....','...KHHhhHHHHK...','...KHHHHHHHHK...',
+    '...KHSSSSSHHK...','...KSKSSKSSHK...','....SSSSSSsK....','....KsSSSsK.....',
+    '.....KKsKK......','....KPLWLpK.....','...KPLPWLppK....','..KSLPPWLppSK...',
+    '..KsKPPWLpKsK...','...KKPPWppKK....','....KpPPppK.....','....KJJjjjK.....',
+    '....KJJKKjK.....','....KJjKKjK.....','...KWWWKWWWK....','...KKKKKKKKK....'],
+  up: [
+    '.....KKKKK......','....KHHhHHKK....','...KHHhhHHHHK...','...KHHHHHHHHK...',
+    '...KHHHHHHHHK...','...KHHHHHHHHK...','....KHHHHHHK....','....KsssssK.....',
+    '.....KKsKK......','....KPLLLpK.....','...KPLbbLLpK....','..KSPKBBBBKSK...',
+    '..KsPKBbbBKsK...','...KPKBBbBKpK...','....KKbbbbKK....','....KJJjjjK.....',
+    '....KJJKKjK.....','....KJjKKjK.....','...KWWWKWWWK....','...KKKKKKKKK....'],
+  side: [
+    '.....KKKKK......','....KHhhHHK.....','...KHHHHHHHK....','...KHHHHHHHHK...',
+    '...KHHSSSSSK....','...KHSSSKSSK....','...KHSSSSSSSK...','....KssSSsKK....',
+    '.....KKsKK......','....KBBKPLK.....','...KBBBKPLpK....','...KBbBKPLpK....',
+    '...KBbBKPSsK....','....KbbKPSsK....','.....KppKKK.....','.....KJJjjK.....',
+    '.....KJJjjK.....','.....KJjKjK.....','....KWWWKWWK....','....KKKKKKKK....']
+};
+// Alternate footfalls preserve the silhouette while shifting arms and shoes.
+EXPLORER.downWalk=EXPLORER.down.slice(0,16).concat(['...KJJJKKjK.....','...KJjK.KjK.....','..KWWWK.KjK.....','..KKKKK.KWWK....']);
+EXPLORER.upWalk=EXPLORER.up.slice(0,16).concat(['...KJJJKKjK.....','...KJjK.KjK.....','..KWWWK.KjK.....','..KKKKK.KWWK....']);
+EXPLORER.sideWalk=EXPLORER.side.slice(0,16).concat(['....KJJKKjjK....','...KJjK..KjjK...','..KWWWK..KWWK...','..KKKKK..KKKK...']);
+
 function buildCharacter(pal) {
+  const body = pal === PALS.mehul ? EXPLORER : BODY;
+  pal = { ...pal, B: "#a9734c", b: "#dec38a" };
   const s = {};
-  s.down = spr(BODY.down, pal);
-  s.downW1 = spr(BODY.downWalk, pal);
+  s.down = spr(body.down, pal);
+  s.downW1 = spr(body.downWalk, pal);
   s.downW2 = mirror(s.downW1);
-  s.up = spr(BODY.up, pal);
-  s.upW1 = spr(BODY.upWalk, pal);
+  s.up = spr(body.up, pal);
+  s.upW1 = spr(body.upWalk, pal);
   s.upW2 = mirror(s.upW1);
-  s.right = spr(BODY.side, pal);
-  s.rightW = spr(BODY.sideWalk, pal);
+  s.right = spr(body.side, pal);
+  s.rightW = spr(body.sideWalk, pal);
   s.left = mirror(s.right);
   s.leftW = mirror(s.rightW);
   return s;
@@ -585,133 +613,121 @@ function windowPx(P, x, y, w = 12, h = 10, lit = false) {
   P.r(x - 2, y + h, w + 4, 1, '#fff0c9');
 }
 
+
+// Architectural kit: stepped hip roofs, masonry, timber trim and flower boxes.
+function hipRoof(P, x, y, w, h, colors) {
+  const [base, shade, light] = colors;
+  for (let j=0;j<h;j++) {
+    const inset=Math.max(0, Math.floor((h-j)*.53));
+    P.r(x+inset,y+j,w-inset*2,1,OUT);
+    if (j>0) P.r(x+inset+1,y+j,w-inset*2-2,1,j%5===4?shade:base);
+    if (j>0 && j%5!==4) {
+      P.r(x+inset+2,y+j,Math.max(1,Math.floor(w*.2)-inset),1,light);
+      for(let k=x+inset+7+(Math.floor(j/5)%2)*4;k<x+w-inset-1;k+=9) P.p(k,y+j,shade);
+    }
+  }
+  P.r(x,y+h,w,3,OUT); P.r(x+1,y+h,w-2,1,light);
+  P.r(x+Math.floor(h*.53),y,w-Math.floor(h*.53)*2,2,light);
+}
+function masonry(P,x,y,w,h,base,joint) {
+  P.box(x,y,w,h,base,OUT);
+  for(let j=y+5;j<y+h-1;j+=5) {
+    P.r(x+1,j,w-2,1,joint);
+    for(let i=x+3+((j-y)%2)*4;i<x+w-1;i+=10) P.r(i,j-4,1,4,joint);
+  }
+  P.r(x+1,y+1,2,h-2,'#f4e6c4'); P.r(x+w-4,y+1,3,h-2,'#9e9b8d');
+}
+function flowerBox(P,x,y,w) {
+  P.box(x,y,w,6,'#b57b59','#594a43'); P.r(x+1,y+1,w-2,1,'#e3b07a');
+  P.r(x-1,y-3,w+2,3,'#376f4b'); P.r(x+1,y-5,w-2,3,'#629b59');
+  for(let i=2;i<w-1;i+=5) { P.r(x+i,y-5,2,2,'#f4c888'); P.p(x+i,y-6,'#fff1c7'); }
+}
+
 function buildHouse(lit) {
-  const W = 80, H = 72, [c, x] = makeCanvas(W, H), P = new Px(x);
-  P.r(6, 68, 70, 4, "rgba(0,0,0,.18)");
-  // chimney
-  P.box(58, 2, 9, 16, "#b05040", OUT); P.r(57, 2, 11, 3, OUT); P.r(59, 7, 7, 1, "#8a3828"); P.r(59, 12, 7, 1, "#8a3828");
-  roofShingles(P, 1, 10, 78, 32, "#d85848", "#a83828", "#f08068");
-  P.r(4, 42, 72, 2, "#7a2018");
-  // walls with siding
-  P.box(5, 43, 70, 25, "#f4e4c4", OUT); for (let j = 46; j < 64; j += 3) P.r(6, j, 68, 1, "#e6d2ac"); P.r(6, 64, 68, 3, "#d8c098");
-  P.r(6, 44, 68, 1, "#c8b088");
-  windowPx(P, 12, 47, 14, 10, lit); windowPx(P, 54, 47, 14, 10, lit);
-  for (const wx of [12, 54]) { P.r(wx - 4, 46, 3, 12, OUT); P.r(wx - 3, 47, 1, 10, "#4a8a50"); P.r(wx + 15, 46, 3, 12, OUT); P.r(wx + 16, 47, 1, 10, "#4a8a50");
-    P.r(wx, 47, 2, 9, lit ? "#f8c060" : "#e86060"); P.r(wx + 12, 47, 2, 9, lit ? "#f8c060" : "#e86060"); }
-  P.r(49, 48, 3, 4, OUT); P.r(50, 49, 1, 2, lit ? "#fff0a0" : "#f8d048");
-  P.r(12, 58, 14, 3, "#8a5a30"); P.p(14, 57, "#f04848"); P.p(18, 57, "#f8e048"); P.p(22, 57, "#f04848");
-  P.r(54, 58, 14, 3, "#8a5a30"); P.p(56, 57, "#f8e048"); P.p(60, 57, "#f04848"); P.p(64, 57, "#f8e048");
-  // door
-  P.box(33, 46, 14, 22, "#8a5030", OUT); P.r(35, 48, 10, 8, "#a0643c"); P.r(35, 58, 10, 8, "#a0643c");
-  P.p(44, 57, "#f8d030"); P.r(31, 67, 18, 1, "#c8b088");
+  const [c,x]=makeCanvas(88,88),P=new Px(x);
+  P.r(6,82,77,5,'#56834d');
+  masonry(P,7,42,73,38,'#eddbad','#d4bf93');
+  hipRoof(P,1,15,85,28,['#c76451','#8c413f','#ef9a70']);
+  // A tall chimney, dormer, entrance gable and shaded side wing.
+  P.box(65,5,10,22,'#b98c7b',OUT); P.r(64,3,12,4,'#efd1a7');
+  for(let j=9;j<24;j+=5) P.r(66,j,8,1,'#805d58');
+  P.box(14,27,18,15,'#e9d5a8',OUT);
+  hipRoof(P,10,19,26,10,['#c76451','#8c413f','#ef9a70']);
+  windowPx(P,19,31,8,8,lit);
+  P.r(9,46,69,3,'#b89578');
+  windowPx(P,12,52,16,15,lit); windowPx(P,59,52,15,15,lit);
+  for(const wx of [9,29,56,74]) P.r(wx,52,3,16,'#507a65');
+  flowerBox(P,12,69,16); flowerBox(P,59,69,15);
+  masonry(P,33,50,23,30,'#f2dfb8','#d5c5a6');
+  hipRoof(P,29,39,31,13,['#bd5f4f','#863f3d','#e9946c']);
+  P.box(38,59,13,21,'#74523f',OUT); windowPx(P,40,61,9,8,lit); P.p(48,74,'#f4d47c');
+  P.r(32,80,26,2,'#f7e8c7'); P.r(29,82,32,3,'#b6ae91');
   return c;
 }
 
 function buildDegreeHall(lit) {
-  const W = 112, H = 104, [c, x] = makeCanvas(W, H), P = new Px(x);
-  const V = "#6a2ca8", Vd = "#4b1d7a", Vl = "#9a62d8", ST = "#ece6d8", STd = "#c8bea8";
-  P.r(4, 100, 106, 4, "rgba(0,0,0,.18)");
-  // flag pole
-  P.r(104, 2, 2, 40, "#606878"); P.r(104, 0, 2, 2, "#f8d030");
-  P.r(94, 3, 10, 7, V); P.r(94, 3, 10, 1, Vl); P.r(97, 5, 3, 3, "#ffffff");
-  // roof band
-  roofShingles(P, 2, 30, 108, 20, V, Vd, Vl);
-  // pediment
-  for (let i = 0; i < 18; i++) P.r(56 - 4 - i * 2, 14 + i, 8 + i * 4, 1, i === 0 ? OUT : ST);
-  for (let i = 0; i < 18; i++) { P.p(56 - 4 - i * 2, 14 + i, OUT); P.p(56 + 3 + i * 2, 14 + i, OUT); }
-  // torch emblem
-  P.r(54, 22, 4, 9, "#c89a30"); P.r(53, 21, 6, 2, "#c89a30"); P.r(54, 16, 4, 5, "#f8a030"); P.r(55, 14, 2, 3, "#f8e048");
-  // frieze with sign
-  P.r(4, 50, 104, 9, OUT); P.r(5, 51, 102, 7, Vd);
-  const label = "DEGREE HALL"; P.text(label, 56 - (textW(label) >> 1), 52, "#ffffff");
-  // facade
-  P.box(6, 58, 100, 42, ST, OUT);
-  for (let j = 62; j < 96; j += 6) P.r(7, j, 98, 1, STd);
-  // columns
-  for (const cx of [10, 26, 78, 94]) {
-    P.r(cx, 59, 8, 37, OUT); P.r(cx + 1, 59, 6, 37, "#ffffff"); P.r(cx + 5, 59, 2, 37, "#d0d0dc");
-    P.r(cx - 1, 59, 10, 3, OUT); P.r(cx, 60, 8, 1, "#ffffff");
-  }
-  windowPx(P, 40, 64, 8, 12, lit); windowPx(P, 64, 64, 8, 12, lit);
-  // grand door
-  P.r(49, 66, 14, 30, OUT); P.r(50, 67, 12, 29, "#6a3c20"); P.r(50, 67, 12, 3, "#8a5030");
-  P.r(55, 70, 1, 26, OUT); P.p(53, 82, "#f8d030"); P.p(58, 82, "#f8d030");
-  // steps
-  P.r(6, 96, 100, 2, "#d8d0c0"); P.r(4, 98, 104, 2, "#c4bcac");
+  const [c,x]=makeCanvas(120,120),P=new Px(x);
+  P.r(5,113,112,6,'#668254');
+  masonry(P,7,61,106,48,'#e2d5b5','#c4bca6');
+  hipRoof(P,2,32,116,30,['#79688c','#514d6c','#ada0b0']);
+  // Clock tower breaks the roof line and acts as the campus landmark.
+  masonry(P,46,14,28,64,'#e8d9b8','#c5baa2');
+  hipRoof(P,41,2,38,15,['#695a85','#46415e','#a293b5']);
+  P.box(50,23,20,20,'#6c6285',OUT); P.box(52,25,16,16,'#f5edcf','#b9ad8e');
+  P.line(60,28,60,33,'#4e5060'); P.line(60,33,65,35,'#4e5060'); P.p(60,33,'#9a6555');
+  windowPx(P,54,49,12,15,lit);
+  for(const wx of [13,31,78,96]) windowPx(P,wx,70,11,17,lit);
+  for(const wx of [12,34,79,101]) { P.r(wx,91,5,16,'#f3e8cd'); P.r(wx+3,91,2,16,'#afa897'); }
+  for(const wx of [23,89]) { P.r(wx,67,8,25,'#6d478b'); P.r(wx+1,68,2,20,'#9a78b5'); P.text('N',wx+2,75,'#f9e4a2'); }
+  P.box(43,76,34,10,'#58426f',OUT); P.text('NYU',54,79,'#fff2cf');
+  P.box(48,88,24,23,'#685447',OUT); P.r(59,89,2,21,'#3e3b3e');
+  windowPx(P,50,90,8,11,lit); windowPx(P,62,90,8,11,lit);
+  P.r(6,109,108,3,'#f2e6c7'); P.r(3,112,114,3,'#b5af9c'); P.r(0,115,120,3,'#ded5b8');
   return c;
 }
 
 function buildLab(lit) {
-  const W = 112, H = 104, [c, x] = makeCanvas(W, H), P = new Px(x);
-  P.r(4, 100, 106, 4, "rgba(0,0,0,.18)");
-  // dish
-  P.r(22, 22, 3, 8, "#606878");
-  P.r(12, 6, 22, 16, OUT); P.r(13, 7, 20, 14, "#e8eef4"); P.r(15, 9, 16, 10, "#c8d4e0"); P.r(17, 11, 4, 2, "#ffffff");
-  P.line(22, 14, 30, 4, "#606878"); P.r(29, 2, 4, 4, "#f04848");
-  // antenna
-  P.r(96, 6, 2, 24, "#606878"); P.r(93, 12, 8, 1, "#606878"); P.r(94, 18, 6, 1, "#606878");
-  // roof
-  P.r(2, 28, 108, 22, OUT); P.r(3, 29, 106, 20, "#46557a");
-  for (let i = 6; i < 106; i += 12) P.r(3 + i, 29, 1, 20, "#3a4868");
-  P.r(3, 29, 106, 3, "#6a7ca4"); P.r(3, 46, 106, 3, "#2e3a58");
-  // Rooftop skylights, brass rails and stepped ventilation housings.
-  for (const sx of [43, 64]) {
-    P.box(sx, 34, 17, 10, '#304a62', '#202f46');
-    P.r(sx + 1, 35, 15, 2, '#95c6cd');
-    P.r(sx + 2, 38, 13, 4, '#426e89');
-    P.r(sx + 8, 35, 1, 8, '#d1d8bc');
+  const [c,x]=makeCanvas(120,112),P=new Px(x);
+  P.r(5,106,111,5,'#537951');
+  masonry(P,6,58,108,47,'#d8ded1','#b8c7be');
+  hipRoof(P,1,31,118,29,['#427879','#315355','#6ba2a0']);
+  // Observatory dome and a recessed glass atrium make this a research building.
+  for(let j=0;j<24;j++) {
+    const hw=Math.round(Math.sqrt(Math.max(0,24*24-(23-j)*(23-j))));
+    P.r(38-hw,8+j,hw*2,1,OUT);
+    P.r(39-hw,8+j,Math.max(0,hw*2-2),1,j<9?'#b9dfd5':j<18?'#79b3b5':'#46858c');
   }
-  P.r(8, 47, 96, 1, '#d5b870');
-  // walls
-  P.box(5, 49, 102, 51, "#dfe6ee", OUT); P.r(6, 92, 100, 7, "#b8c4d2");
-  for (let wy = 77; wy < 92; wy += 5) {
-    P.r(6, wy, 100, 1, '#c7d2d2');
-    for (let wx = 9 + ((wy - 77) / 5 % 2) * 5; wx < 106; wx += 10) P.r(wx, wy - 4, 1, 4, '#d1dcda');
-  }
-  // glass strips
-  const glass = (gx, gw) => {
-    P.r(gx - 1, 55, gw + 2, 18, OUT); P.r(gx, 56, gw, 16, lit ? "#9ff0ff" : "#48c8e8");
-    for (let i = 4; i < gw; i += 9) P.r(gx + i, 56, 1, 16, "#2a90b0");
-    P.line(gx + 2, 70, gx + 10, 58, "#c8f8ff"); P.line(gx + 6, 70, gx + 14, 58, "#c8f8ff");
-  };
-  glass(10, 34); glass(68, 34);
-  // sign
-  P.r(42, 52, 28, 9, OUT); P.r(43, 53, 26, 7, "#1e2a44"); P.text("AI LAB", 56 - (textW("AI LAB") >> 1), 54, "#40e8ff");
-  // sliding door
-  P.r(46, 63, 20, 37, OUT); P.r(47, 64, 18, 36, "#5ad0f0"); P.r(55, 64, 2, 36, OUT);
-  P.line(49, 96, 53, 68, "#c8f8ff"); P.line(59, 96, 63, 68, "#c8f8ff");
-  for (const px of [13, 77]) {
-    P.box(px, 91, 22, 6, '#a46b4b', '#564f41');
-    P.r(px - 1, 89, 24, 3, '#47795c'); P.r(px + 2, 87, 18, 3, '#73a06c');
-    for (let fx = px + 3; fx < px + 20; fx += 6) { P.r(fx, 87, 2, 2, '#f3d479'); P.p(fx, 87, '#fff6c4'); }
-  }
+  P.line(38,9,38,32,'#dce6cf',2); P.line(24,16,20,32,'#dce6cf'); P.line(52,16,56,32,'#467481');
+  P.box(12,32,52,6,'#819fa0',OUT); P.r(14,33,48,1,'#d1e5d5');
+  P.r(93,7,2,25,'#526c71'); P.r(86,14,16,2,'#92a5a4'); P.box(90,4,8,6,'#e8c878',OUT);
+  for(const wx of [13,83]) { windowPx(P,wx,66,24,22,lit); flowerBox(P,wx,96,24); }
+  P.box(44,50,33,55,'#263e4a',OUT); P.r(47,55,27,47,lit?'#80dbe0':'#5895a6');
+  for(let j=57;j<100;j+=11) P.r(47,j,27,2,'#aecac4');
+  P.r(59,55,2,47,'#d1ded0'); P.line(49,78,56,57,'#a9d6d7'); P.line(63,94,71, 70,'#a9d6d7');
+  P.box(42,47,37,11,'#244953',OUT); P.text('AI LAB',49,50,'#d9f2dc');
+  P.r(42,103,38,3,'#e6e2c9'); P.r(39,106,44,3,'#a3b5aa');
   return c;
 }
 
 function buildGym(lit) {
-  const W = 96, H = 96, [c, x] = makeCanvas(W, H), P = new Px(x);
-  P.r(4, 92, 90, 4, "rgba(0,0,0,.18)");
-  // roof
-  roofShingles(P, 1, 16, 94, 30, "#e88838", "#b85c20", "#f8b060");
-  P.r(4, 46, 88, 2, "#8a4010");
-  // big sign
-  P.r(22, 0, 52, 22, OUT); P.r(23, 1, 50, 20, "#d83838"); P.r(24, 2, 48, 18, "#f04848");
-  P.r(23, 1, 50, 1, "#ff9090");
-  P.text("GYM", 48 - (textW("GYM", 3) >> 1), 4, "#ffffff", 3);
-  const db = (dx) => { P.r(dx, 10, 6, 2, "#ffffff"); P.r(dx - 1, 8, 2, 6, "#ffffff"); P.r(dx + 5, 8, 2, 6, "#ffffff"); };
-  db(26); db(64);
-  // walls
-  P.box(5, 47, 86, 45, "#f2dcb0", OUT);
-  for (let j = 52; j < 90; j += 5) {
-    P.r(6, j, 84, 1, "#dcc08c");
-    for (let i = (j / 5) % 2 ? 6 : 10; i < 88; i += 8) P.r(6 + i, j - 4, 1, 4, "#dcc08c");
+  const [c,x]=makeCanvas(104,100),P=new Px(x);
+  P.r(4,94,98,5,'#638553');
+  masonry(P,7,47,90,47,'#e8cba0','#c5aa84');
+  // Barrel-vault sports hall with a copper roof and raised entry canopy.
+  for(let j=0;j<34;j++) {
+    const inset=Math.max(0,Math.floor((1-Math.sin(j/34*Math.PI/2))*20));
+    P.r(2+inset,12+j,100-inset*2,1,OUT);
+    P.r(3+inset,12+j,98-inset*2,1,j<9?'#e9b079':j<24?'#c98757':'#9b5c48');
+    if(j%6===5) P.r(4+inset,12+j,96-inset*2,1,'#945e49');
   }
-  windowPx(P, 12, 56, 16, 12, lit); windowPx(P, 68, 56, 16, 12, lit);
-  // double door
-  P.r(35, 58, 26, 34, OUT); P.r(36, 59, 24, 33, "#60b8e8"); P.r(47, 59, 2, 33, OUT);
-  P.line(38, 88, 44, 62, "#c8f0ff"); P.line(51, 88, 57, 62, "#c8f0ff");
-  P.r(39, 52, 18, 6, OUT); P.r(40, 53, 16, 4, "#40c040"); P.text("OPEN", 41, 53, "#ffffff");
-  P.r(30, 91, 36, 1, "#c8a870");
+  P.r(3,46,98,4,'#684f45'); P.r(4,46,96,1,'#e5c68c');
+  for(const wx of [13,74]) windowPx(P,wx,57,17,20,lit);
+  P.box(33,55,38,39,'#714c43',OUT); windowPx(P,38,62,28,31,lit);
+  P.r(51,64,2,29,'#375663'); P.r(39,81,26,2,'#e5d6b6');
+  hipRoof(P,30,43,44,12,['#557a6c','#35574f','#91ad89']);
+  P.box(35,23,34,14,'#ac5347',OUT); P.text('GYM',41,26,'#fff0ca',2);
+  for(const px of [11,89]) { P.r(px,81,4,12,'#597567'); P.r(px-1,79,6,3,'#a7bb8f'); }
+  P.r(29,94,46,3,'#e8d8af'); P.r(26,97,52,2,'#b5aa8d');
   return c;
 }
 
@@ -1081,22 +1097,21 @@ function buildTree(W, H, blobs, trunk, pal, seed) {
   P.r(tx, ty + 1, 1, H - ty - 3, pal.Th);
   P.r(tx - 2, H - 3, tw + 4, 2, pal.k);
   P.r(tx - 1, H - 3, tw + 1, 1, pal.T);
-  // Stepped leaf masses with a consistent upper-left light source.
-  // Clustered shapes keep the sprite readable at native GBA-like scale.
-  const crown = (cx, cy, r, fill, light) => {
-    for (let dy = -r; dy <= r; dy++) {
-      const half = Math.round(Math.sqrt(Math.max(0, r * r - dy * dy)));
-      P.r(cx - half, cy + dy, half * 2 + 1, 1, pal.k);
-      if (half > 1 && Math.abs(dy) < r) P.r(cx - half + 1, cy + dy, half * 2 - 1, 1, dy > r * .45 ? pal.d : fill);
-      if (dy < 0 && half > 2) P.r(cx - half + 2, cy + dy, Math.max(1, half - 1), 1, light);
-    }
-  };
-  const clusters = blobs.slice().sort((a,b) => b[1]-a[1]);
-  for (const [cx,cy,r] of clusters) crown(Math.round(cx), Math.round(cy), Math.floor(r), pal.m, pal.l);
-  for (let i=0;i<blobs.length;i++) {
-    const [cx,cy,r] = blobs[i];
-    P.r(Math.round(cx-r*.35), Math.round(cy-r*.5), Math.max(2, Math.floor(r*.55)), 1, pal.h);
-    if (W > 24) { P.r(Math.round(cx+2), Math.round(cy+2), 3, 1, pal.d); P.p(Math.round(cx+4), Math.round(cy+1), pal.d); }
+
+  const canopy = (px,py) => blobs.some(([cx,cy,r]) => {
+    const dx=px-cx,dy=py-cy;
+    const scallop=((Math.floor(px/3)+Math.floor(py/3)+seed)%3-1)*1.3;
+    return dx*dx+dy*dy < (r+scallop)*(r+scallop);
+  });
+  for(let py=0;py<ty+3;py++) for(let px=0;px<W;px++) {
+    if(!canopy(px,py)) continue;
+    const edge=!canopy(px-1,py)||!canopy(px+1,py)||!canopy(px,py-1)||!canopy(px,py+1);
+    const band=py/(ty+2)+px/W*.25;
+    const patch=hash(Math.floor(px/3),Math.floor(py/3),seed);
+    let color=edge?pal.k:band>.83?pal.d:band<.39?pal.l:pal.m;
+    if(!edge && patch>.68 && px%3!==2 && py%3===1) color=band<.6?pal.h:pal.l;
+    if(!edge && patch<.18 && py%4===3) color=pal.d;
+    P.p(px,py,color);
   }
   return c;
 }
@@ -1216,28 +1231,25 @@ function buildStage() {
 }
 
 function buildWizardTower() {
-  const W = 52, H = 96, [c, x] = makeCanvas(W, H), P = new Px(x);
-  P.r(4, 92, 46, 4, "rgba(0,0,0,.2)");
-  // cone roof
-  for (let i = 0; i < 40; i++) {
-    const w = 2 + Math.round(i * 1.1) * 2, xx = 26 - (w >> 1);
-    P.r(xx - 1, 4 + i, w + 2, 1, OUT); P.r(xx, 4 + i, w, 1, "#5a2a98");
-    P.r(xx, 4 + i, Math.max(1, w >> 2), 1, "#7a48c0"); P.r(xx + w - Math.max(1, w >> 3), 4 + i, Math.max(1, w >> 3), 1, "#3e1a70");
+  const [c,x]=makeCanvas(56,104),P=new Px(x);
+  P.r(5,98,48,5,'#527650');
+  masonry(P,10,48,36,50,'#b5b0c7','#9895b1');
+  P.r(11,49,6,47,'#d5cbda'); P.r(39,49,6,47,'#8886a5');
+  // Roof stays inside its canvas; overlapping slate courses follow the cone.
+  for(let j=0;j<43;j++) {
+    const hw=2+Math.floor(j*.54);
+    P.r(28-hw,5+j,hw*2+1,1,OUT);
+    P.r(29-hw,5+j,Math.max(1,hw*2-1),1,j%6===5?'#493e68':'#6b5989');
+    P.r(29-hw,5+j,Math.max(1,hw-2),1,j%6===5?'#766391':'#9a80b2');
   }
-  for (const [sx, sy] of [[22, 20], [30, 28], [18, 34], [33, 38], [25, 31], [14, 41]]) { P.p(sx, sy, "#f8d048"); P.p(sx + 1, sy, "#fff3a0"); }
-  P.r(24, 0, 4, 5, "#f8d048"); P.p(25, -1, "#f8d048");
-  P.r(1, 43, 50, 3, OUT); P.r(2, 43, 48, 2, "#7a48c0");
-  // stone body
-  P.r(6, 46, 40, 46, OUT); P.r(7, 46, 38, 46, "#a8b0c8");
-  for (let j = 48; j < 90; j += 5) for (let i = (j / 5) % 2 ? 7 : 11; i < 44; i += 8) { P.r(i, j, 7, 4, (i + j) % 3 ? "#b8c0d4" : "#9aa2bc"); }
-  P.r(7, 46, 6, 46, "rgba(255,255,255,.18)"); P.r(38, 46, 7, 46, "rgba(20,10,60,.2)");
-  // balcony with crystal ball
-  P.r(12, 54, 28, 3, OUT); P.r(13, 54, 26, 2, "#7a48c0");
-  P.r(20, 44, 12, 11, OUT); P.r(21, 45, 10, 9, "#c8f0ff"); P.r(21, 45, 10, 9, "#a0e8ff"); P.r(22, 46, 3, 2, "#ffffff"); P.r(26, 49, 4, 4, "#b48ce8");
-  P.r(23, 55, 6, 3, "#c89a30");
-  // window + door
-  P.r(21, 62, 10, 12, OUT); P.r(22, 63, 8, 11, "#f8d048"); P.r(25, 63, 1, 11, OUT); P.r(22, 68, 8, 1, OUT);
-  P.r(19, 78, 14, 14, OUT); P.r(20, 79, 12, 13, "#5a3418"); P.r(20, 79, 12, 2, "#7a4a24"); P.p(29, 86, "#f8d048");
+  P.r(2,48,52,3,'#493e68'); P.r(3,48,50,1,'#cfb995');
+  P.r(27,0,2,6,'#eed48a'); P.r(25,2,6,2,'#ffe6a3');
+  windowPx(P,21,58,14,17,true);
+  P.box(6,75,44,5,'#8c7b99',OUT); P.r(7,76,42,1,'#e6cfa6');
+  for(let i=10;i<49;i+=6) P.r(i,70,1,7,'#665973');
+  P.box(21,84,14,15,'#594568',OUT); P.r(23,85,10,2,'#9e82ac'); P.p(31,92,'#efd286');
+  P.r(16,98,24,3,'#e0d0b5');
+  for(const [sx,sy] of [[24,21],[33,35],[18,39]]) { P.p(sx,sy,'#fce6ab'); P.p(sx+1,sy+1,'#c5abd4'); }
   return c;
 }
 
@@ -1278,51 +1290,40 @@ function buildTower() {
 }
 
 function buildStore(lit) {
-  const W = 96, H = 80, [c, x] = makeCanvas(W, H), P = new Px(x);
-  P.r(4, 76, 90, 4, "rgba(0,0,0,.2)");
-  // parapet + sign
-  P.r(2, 4, 92, 12, OUT); P.r(3, 5, 90, 10, "#c8b8a0");
-  P.r(24, 0, 48, 14, OUT); P.r(25, 1, 46, 12, "#b01c2e"); P.r(25, 1, 46, 2, "#e04050");
-  P.text("DEPT STORE", 48 - (textW("DEPT STORE") >> 1), 5, "#ffffff");
-  // brick facade
-  P.r(4, 16, 88, 60, OUT); P.r(5, 16, 86, 60, "#b8604a");
-  for (let j = 18; j < 74; j += 4) { P.r(5, j, 86, 1, "#9a4a38"); for (let i = (j / 4) % 2 ? 5 : 9; i < 90; i += 8) P.r(i, j - 3, 1, 3, "#9a4a38"); }
-  // upper windows
-  for (const wx of [12, 32, 56, 76]) windowPx(P, wx, 21, 10, 9, lit);
-  // awning
-  P.r(3, 34, 90, 9, OUT);
-  for (let i = 4; i < 92; i += 8) { P.r(i, 35, 4, 7, "#b01c2e"); P.r(i + 4, 35, 4, 7, "#ffffff"); }
-  for (let i = 4; i < 92; i += 8) { P.r(i, 42, 4, 3, OUT); P.r(i + 1, 42, 2, 2, "#b01c2e"); }
-  // display windows with goods
-  const disp = (dx) => {
-    P.r(dx, 47, 28, 22, OUT); P.r(dx + 1, 48, 26, 20, lit ? "#fff0b0" : "#cfe8f8");
-    P.r(dx + 4, 54, 6, 12, "#6a2ca8"); P.r(dx + 5, 51, 4, 3, "#f0c8a0");        // mannequin
-    P.r(dx + 16, 60, 8, 6, "#f8d048"); P.r(dx + 18, 58, 4, 2, OUT);              // shopping bag
-    P.line(dx + 2, 66, dx + 9, 50, "rgba(255,255,255,.7)");
-  };
-  disp(9); disp(59);
-  // revolving door
-  P.r(39, 46, 18, 30, OUT); P.r(40, 47, 16, 29, "#8cc8e8"); P.r(47, 47, 2, 29, OUT); P.r(40, 60, 16, 1, OUT);
-  P.r(36, 75, 24, 1, "#7a3a2a");
+  const [c,x]=makeCanvas(104,96),P=new Px(x);
+  P.r(4,91,98,5,'#638553');
+  masonry(P,7,36,90,55,'#d9aa82','#bd9276');
+  hipRoof(P,1,7,102,28,['#537e71','#37564f','#8eac8a']);
+  for(const wx of [13,35,57,79]) windowPx(P,wx,41,12,13,lit);
+  P.box(23,23,58,11,'#345c50',OUT); P.text('MARKET',40,26,'#ffedb6');
+  // Deep striped awning with a scalloped valance and recessed shopfront.
+  P.r(5,57,94,10,OUT);
+  for(let i=0;i<92;i+=7) {
+    const color=(Math.floor(i/7)%2)?'#f3e0b4':'#b85e54';
+    P.r(6+i,58,Math.min(7,92-i),8,color); P.r(7+i,66,Math.min(5,91-i),2,color);
+  }
+  windowPx(P,13,70,23,18,lit); windowPx(P,69,70,22,18,lit);
+  P.box(43,68,18,23,'#48726d',OUT); windowPx(P,46,70,12,13,lit); P.p(57,86,'#f7d98e');
+  flowerBox(P,12,88,24); flowerBox(P,69,88,22);
+  P.r(39,91,26,3,'#e8d8af');
   return c;
 }
 
 function buildStation(lit) {
-  const W = 96, H = 86, [c, x] = makeCanvas(W, H), P = new Px(x);
-  P.r(4, 82, 90, 4, "rgba(0,0,0,.2)");
-  // gable with clock
-  for (let i = 0; i < 18; i++) { P.r(48 - 6 - i * 2, 8 + i, 12 + i * 4, 1, OUT); P.r(48 - 5 - i * 2, 8 + i, 10 + i * 4, 1, "#3a7a68"); }
-  P.r(42, 13, 12, 12, OUT); P.r(43, 14, 10, 10, "#fffbe8"); P.r(47, 15, 2, 5, OUT); P.r(48, 19, 4, 1, OUT);
-  roofShingles(P, 2, 24, 92, 20, "#3a7a68", "#2a5a4c", "#58a088");
-  P.r(5, 44, 86, 2, "#1e3e34");
-  // walls
-  P.box(6, 45, 84, 37, "#f0e2c4", OUT);
-  for (let j = 50; j < 80; j += 4) P.r(7, j, 82, 1, "#dccaa4");
-  P.r(4, 52, 88, 7, OUT); P.r(5, 53, 86, 5, "#2a5a4c");
-  P.text("STATION", 48 - (textW("STATION") >> 1), 54, "#f8d048");
-  for (const wx of [12, 26, 62, 76]) windowPx(P, wx, 62, 9, 12, lit);
-  P.r(39, 61, 18, 21, OUT); P.r(40, 62, 16, 20, "#6a4024"); P.r(47, 62, 2, 20, OUT); P.p(45, 72, "#f8d048"); P.p(50, 72, "#f8d048");
-  P.r(36, 81, 24, 1, "#b8a888");
+  const [c,x]=makeCanvas(112,96),P=new Px(x);
+  P.r(3,91,108,4,'#688473');
+  masonry(P,9,45,94,43,'#e3d9b6','#c1ba9e');
+  hipRoof(P,2,15,108,31,['#4c7770','#304e4e','#8eada0']);
+  // Central ticket hall rises out of the platform canopy.
+  masonry(P,39,30,34,57,'#eee1bf','#c5b99c');
+  hipRoof(P,34,14,44,18,['#537e71','#37564f','#8eac8a']);
+  P.box(47,35,18,18,'#52625d',OUT); P.box(49,37,14,14,'#f7e8bd','#bcb598');
+  P.line(56,39,56,44,'#4a5655'); P.line(56,44,60,44,'#4a5655');
+  P.box(33,55,46,10,'#35574f',OUT); P.text('STATION',42,58,'#ffe7a9');
+  for(const wx of [15,80]) windowPx(P,wx,55,16,21,lit);
+  P.box(46,67,20,21,'#785b49',OUT); windowPx(P,48,69,16,12,lit); P.r(55,70,1,18,'#344b4b');
+  for(const px of [6,101]) { P.r(px,52,4,37,'#50675e'); P.r(px+1,52,1,37,'#b7bca0'); }
+  P.r(1,87,110,3,'#e1d8b3'); P.r(0,90,112,3,'#a4ad97');
   return c;
 }
 
@@ -1436,20 +1437,20 @@ function buildSprites() {
   SPR.dogL = SPR.dogR.map(mirror);
   SPR.dogSitR = spr(DOG_SIT, DOG_PAL); SPR.dogSitL = mirror(SPR.dogSitR);
   SPR.robot = [spr(ROBOT, ROBOT_PAL), spr(ROBOT, ROBOT_PAL2)];
-  const SMALL = [[12, 8, 7], [7, 14, 6], [17, 14, 6], [12, 19, 6]], SMALL_T = { x: 10, w: 4, y: 23 };
-  const BIG = [[16, 11, 9], [9, 16, 7.5], [23, 16, 7.5], [12, 22, 8], [20, 22, 8], [16, 6, 6]], BIG_T = { x: 13, w: 6, y: 27 };
+  const SMALL = [[16, 10, 9], [9, 18, 8], [23, 18, 8], [16, 26, 8]], SMALL_T = { x: 13, w: 6, y: 30 };
+  const BIG = [[22, 13, 12], [12, 23, 11], [32, 23, 11], [17, 32, 11], [28, 32, 11], [22, 7, 7]], BIG_T = { x: 18, w: 8, y: 39 };
   SPR.tree = [
-    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.green, 1),
-    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.lime, 2),
+    buildTree(32, 40, SMALL, SMALL_T, TREE_PALS.green, 1),
+    buildTree(32, 40, SMALL, SMALL_T, TREE_PALS.lime, 2),
     buildPine(TREE_PALS.pine, 3),
-    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.autumn, 4),
-    buildTree(24, 30, SMALL, SMALL_T, TREE_PALS.blossom, 5),
+    buildTree(32, 40, SMALL, SMALL_T, TREE_PALS.autumn, 4),
+    buildTree(32, 40, SMALL, SMALL_T, TREE_PALS.blossom, 5),
   ];
   SPR.bigTree = [
-    buildTree(32, 40, BIG, BIG_T, TREE_PALS.green, 6),
-    buildTree(32, 40, BIG, BIG_T, TREE_PALS.lime, 7),
-    buildTree(32, 40, BIG, BIG_T, TREE_PALS.autumn, 8),
-    buildTree(32, 40, BIG, BIG_T, TREE_PALS.blossom, 9),
+    buildTree(44, 52, BIG, BIG_T, TREE_PALS.green, 6),
+    buildTree(44, 52, BIG, BIG_T, TREE_PALS.lime, 7),
+    buildTree(44, 52, BIG, BIG_T, TREE_PALS.autumn, 8),
+    buildTree(44, 52, BIG, BIG_T, TREE_PALS.blossom, 9),
   ];
   SPR.bird = [spr(BIRD_STAND, BIRD_PAL), spr(BIRD_FLY, BIRD_PAL)];
   SPR.birdL = SPR.bird.map(mirror);
