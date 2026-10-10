@@ -839,7 +839,7 @@
 
     // landmark labels + name tag (crisp, on the full-res canvas)
     const fs = 8 * Math.max(1, Math.round(scale / 3));
-    ctx.font = `${fs}px "Press Start 2P", monospace`;
+    ctx.font = `700 ${Math.round(fs * 1.6)}px "Pixelify Sans", sans-serif`;
     ctx.textBaseline = "middle"; ctx.textAlign = "center";
     for (const [id, L] of Object.entries(World.labels)) {
       if (!inView(L.x - 60, L.y - 20, 120, 40)) continue;
@@ -855,7 +855,7 @@
     }
     if (started) {
       const nfs = Math.max(9, fs), name = "MEHUL";
-      ctx.font = `${nfs}px "Press Start 2P", monospace`;
+      ctx.font = `700 ${Math.round(nfs * 1.6)}px "Pixelify Sans", sans-serif`;
       const w = ctx.measureText(name).width + nfs * 1.2, h = nfs * 1.9;
       const X = Math.round((player.px + 8 - cam.x) * scale), Y = Math.round((player.py - 9 - cam.y) * scale - h / 2);
       ctx.fillStyle = "rgba(42,34,48,.55)"; ctx.fillRect(X - w / 2 + 2, Y - h / 2 + 3, w, h);
@@ -1141,5 +1141,5 @@
     player, tour, npcs, train, goSection, nextStop,
     tick(sec = 1) { for (let i = 0; i < sec * 60; i++) { const dt = 1 / 60; if (started) updatePlayer(dt); updateWorld(dt); updateRocket(dt); updateDialog(dt); updateParts(dt); updateCamera(dt); } },
   };
-  if (document.fonts && document.fonts.load) document.fonts.load('8px "Press Start 2P"');
+  if (document.fonts && document.fonts.load) ['8px "Press Start 2P"', '700 13px "Pixelify Sans"', '16px "Nunito"'].forEach((f) => document.fonts.load(f));
 })();
