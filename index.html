@@ -7,15 +7,16 @@
   <meta name="description" content="Mehul Gupta builds AI products and makes the data underneath them correct. Explore a playable pixel town: AI systems, analytics, product delivery and aerospace engineering. NYU MS Management of Technology, Dec 2026.">
   <meta name="author" content="Mehul Gupta">
   <link rel="canonical" href="https://mgupta646.github.io/">
-  <meta name="theme-color" content="#2a2230">
+  <meta name="theme-color" content="#193e35">
   <!-- Social previews. If you deploy somewhere other than https://mgupta646.github.io/, update these two URLs. -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://mgupta646.github.io/">
   <meta property="og:title" content="Mehul Gupta · Explore Mehul Town">
-  <meta property="og:description" content="A playable pixel-art portfolio: AI products, data, software and aerospace engineering. Take the guided tour or read it all in Quick View.">
-  <meta property="og:image" content="https://mgupta646.github.io/assets/og-image.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
+  <meta property="og:description" content="From aerospace to AI at NYU Stern. Explore Mehul Gupta's selected work, engineering demos and original pixel-art town.">
+  <meta property="og:image" content="https://mgupta646.github.io/assets/town-cover.png">
+  <meta property="og:image:width" content="1536">
+  <meta property="og:image:height" content="1024">
+  <meta property="og:image:alt" content="Mehul Town: an original pixel-art world of AI research, data and aerospace.">
   <meta name="twitter:card" content="summary_large_image">
   <script type="application/ld+json">
   {
@@ -25,19 +26,18 @@
     "jobTitle": "AI Product & Analytics",
     "email": "mailto:mg8671@nyu.edu",
     "address": { "@type": "PostalAddress", "addressLocality": "Brooklyn", "addressRegion": "NY" },
-    "alumniOf": [
-      { "@type": "CollegeOrUniversity", "name": "New York University Tandon School of Engineering" },
-      { "@type": "CollegeOrUniversity", "name": "Chandigarh University" }
-    ],
+    "affiliation": { "@type": "CollegeOrUniversity", "name": "New York University" },
+    "alumniOf": { "@type": "CollegeOrUniversity", "name": "Chandigarh University" },
     "sameAs": ["https://www.linkedin.com/in/mehulmg/", "https://github.com/mgupta646", "https://public.tableau.com/app/profile/mehul.gupta7649/vizzes"]
   }
   </script>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%236a2ca8'/%3E%3Cpath fill='%23fff' d='M3 4h2v1h1v1h1v1h2V6h1V5h1V4h2v9h-2V8h-1v1H9v1H7V9H6V8H5v5H3z'/%3E%3C/svg%3E">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%23193e35'/%3E%3Cpath fill='%23fff' d='M3 4h2v1h1v1h1v1h2V6h1V5h1V4h2v9h-2V8h-1v1H9v1H7V9H6V8H5v5H3z'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=16">
-  <link rel="stylesheet" href="css/refresh.css?v=16">
+  <link rel="stylesheet" href="css/style.css?v=17">
+  <link rel="stylesheet" href="css/refresh.css?v=17">
+  <link rel="stylesheet" href="css/field-notes.css?v=17">
 </head>
 <body>
   <canvas id="game" aria-label="Mehul Town: an explorable pixel-art portfolio"></canvas>
@@ -188,19 +188,28 @@
 
   <!-- ================= Title screen ================= -->
   <div id="title">
-    <div class="title-card">
-      <div class="edition"><span class="status-dot"></span> PORTFOLIO / EXPLORER EDITION <span>01</span></div>
-      <p class="t-pre">A SMALL TOWN. A WORLD OF WORK.</p>
-      <h1 class="t-logo"><span>MEHUL</span><span>TOWN</span></h1>
-      <p class="t-sub">Mehul Gupta</p>
-      <p class="t-tagline">I build AI products and make the data underneath them correct.</p>
-      <p class="t-roles">AI SYSTEMS · ANALYTICS · PRODUCT DELIVERY</p>
-      <div class="t-btns">
-        <button class="btn big primary" id="startBtn">▶ EXPLORE THE TOWN</button>
-        <button class="btn big" id="quickBtn">SELECTED WORK · 2 MIN</button>
+    <div class="title-shell">
+      <header class="landing-nav"><span class="landing-brand"><i aria-hidden="true">M</i> MEHUL GUPTA <small>PORTFOLIO / 2026</small></span><a href="mailto:mg8671@nyu.edu">LET'S TALK <span aria-hidden="true">↗</span></a></header>
+      <div class="landing-main">
+        <div class="title-card">
+          <p class="t-pre"><span class="status-dot"></span> ENGINEERING ROOTS. PRODUCT MINDSET.</p>
+          <h1 class="landing-name">Mehul Gupta<span>.</span></h1>
+          <p class="landing-headline">Complex data.<br>Clear decisions.<br><em>Useful products.</em></p>
+          <p class="landing-intro">I build AI systems and the data foundations they depend on. Aerospace-trained. Building at NYU Stern. Curious about what comes next.</p>
+          <div class="t-btns">
+            <button class="btn big primary" id="quickBtn">VIEW SELECTED WORK <span aria-hidden="true">↗</span></button>
+            <button class="btn big" id="startBtn"><span aria-hidden="true">▶</span> PLAY THE PORTFOLIO</button>
+          </div>
+          <div class="title-links"><a href="assets/Mehul_Gupta_Portfolio.pdf" download>Portfolio PDF ↓</a><a href="https://www.linkedin.com/in/mehulmg/" target="_blank" rel="noopener">LinkedIn ↗</a><a href="https://github.com/mgupta646" target="_blank" rel="noopener">GitHub ↗</a></div>
+        </div>
+        <figure class="town-postcard">
+          <div class="postcard-bar"><span><i aria-hidden="true"></i> MEHUL TOWN</span><span>EXPLORER EDITION</span></div>
+          <img src="assets/town-cover.png" width="1536" height="1024" alt="An original pixel-art research town with an AI lab, library, rocket workshop and a river running through its gardens." fetchpriority="high">
+          <figcaption><span>A small town. A world of work.</span><span class="postcard-coord">AI · DATA · AEROSPACE</span></figcaption>
+          <span class="postcard-stamp" aria-hidden="true">BUILT<br>TO EXPLORE<br>✦</span>
+        </figure>
       </div>
-      <div class="title-links"><a href="assets/Mehul_Gupta_Portfolio.pdf" download>Portfolio PDF ↗</a><a href="mailto:mg8671@nyu.edu">Get in touch ↗</a><a href="https://github.com/mgupta646" target="_blank" rel="noopener">GitHub ↗</a></div>
-      <p class="t-status">NYU MS · Dec 2026 · Available Jan 2027 · Brooklyn, NY</p>
+      <footer class="landing-footer"><span><span class="status-dot"></span> AVAILABLE JANUARY 2027</span><span>BROOKLYN, NEW YORK · OPEN TO RELOCATION</span><span>WALK. DISCOVER. CONNECT.</span></footer>
     </div>
   </div>
 
@@ -213,12 +222,13 @@
     </div>
   </noscript>
 
-  <script src="js/data.js?v=16"></script>
-  <script src="js/sprites.js?v=16"></script>
-  <script src="js/world.js?v=16"></script>
-  <script src="js/audio.js?v=16"></script>
-  <script src="js/selected-work.js?v=16"></script>
-  <script src="js/ui.js?v=16"></script>
-  <script src="js/game.js?v=16"></script>
+  <script src="js/data.js?v=17"></script>
+  <script src="js/sprites.js?v=17"></script>
+  <script src="js/world.js?v=17"></script>
+  <script src="js/audio.js?v=17"></script>
+  <script src="js/selected-work.js?v=17"></script>
+  <script src="js/field-notes.js?v=17"></script>
+  <script src="js/ui.js?v=17"></script>
+  <script src="js/game.js?v=17"></script>
 </body>
 </html>

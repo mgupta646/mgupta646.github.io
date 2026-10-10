@@ -50,6 +50,8 @@ then open http://localhost:8000.
 
 Full case studies and links live in **`js/data.js`**: each landmark is one entry in `SECTIONS`. The concise project summaries, status labels and role-based selections live in **`js/selected-work.js`**. Keep summary claims consistent with the full case studies when updating either file.
 
+The illustrated field-guide edition adds an original town cover, four public engineering demonstrations and concise case briefs. Edit these in **`js/field-notes.js`**. The demos also appear at the playable Dev Desk. See `CONTENT-SOURCES.md` for factual scope and `ASSET-NOTES.md` for illustration provenance.
+
 | Want to…                         | Edit                                                        |
 | -------------------------------- | ----------------------------------------------------------- |
 | Change a panel's text or links   | that section's `blocks` in `js/data.js`                     |
@@ -74,8 +76,10 @@ After editing, bump `?v=` on the CSS/JS links in `index.html` so browsers fetch 
 index.html          page shell, HUD, panels, tour UI, metadata
 css/style.css       GBA-style UI
 css/refresh.css     explorer-edition theme, responsive overview and reader
+css/field-notes.css illustrated landing, case briefs and engineering lab
 js/data.js          ← all portfolio content
 js/selected-work.js concise project summaries and role-based selections
+js/field-notes.js   case briefs and reproducible engineering demos
 js/sprites.js       pixel art (characters, buildings, trees, tiles), drawn in code
 js/world.js         the 64×48 town map, landmarks, collisions
 js/game.js          engine: movement, pathfinding, guided tour, train, rendering, input
@@ -89,3 +93,4 @@ assets/             screenshots, portfolio PDF, music, social preview image
 - Background music: *Cukies Zelda* by **feedeorfano** ([Pixabay](https://pixabay.com/music/), Pixabay Content License)
 - Fonts: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) and [Pixelify Sans](https://fonts.google.com/specimen/Pixelify+Sans) (SIL Open Font License)
 - Pixel art, code and sound effects: original, made for this site
+- Town cover: original AI-generated illustration; prompt and file location in `ASSET-NOTES.md`. Gameplay uses code-drawn sprites.

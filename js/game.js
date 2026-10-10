@@ -1099,6 +1099,7 @@
     if (!opts.silent) Audio8.play("open");
     flash = 0.6; syncMenu(); updateHUD();
     cam.x = player.px + 8 - VW / 2; cam.y = player.py - VH / 2;
+    document.dispatchEvent(new Event('readingchange'));
     if (opts.silent) return;
     setTimeout(() => {
       if (found.size === 0) {
@@ -1159,7 +1160,8 @@
       const district = player.ty < 14 ? (player.tx < 30 ? 'CAMPUS QUARTER' : 'AI & ENERGY PARK') : player.ty > 37 ? 'RAILWAY STATION' : player.ty > 26 ? (player.tx > 37 ? 'AEROSPACE BASE' : 'GARDEN DISTRICT') : player.tx > 48 ? 'AIRFIELD' : 'CENTRAL PLAZA';
       const label = $('#district b'); if (label.textContent !== district) label.textContent = district;
     }
-    frameId = requestAnimationFrame(frame);
+    // The illustrated title is opaque. Keep the game idle until it is visible.
+    if (started) frameId = requestAnimationFrame(frame);
   }
   resumeFrames();
   // handy for debugging in the console; tick(sec) advances the simulation without rendering

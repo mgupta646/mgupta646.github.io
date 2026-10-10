@@ -111,6 +111,16 @@ const UI = {
   quickReturn: null,
   quickIsolated: [],
 
+  caseBrief(id) {
+    const b = CASE_BRIEFS[id];
+    if (!b) return '';
+    return `<section class="case-brief" aria-label="Case study at a glance"><p class="eyebrow">AT A GLANCE / ${b.role}</p><div class="brief-grid"><div><b>THE PROBLEM</b><p>${b.problem}</p></div><div><b>MY DECISION</b><p>${b.decision}</p></div><div><b>WHAT TO INSPECT</b><p>${b.evidence}</p></div><div><b>PROJECT CONTEXT</b><p>${b.boundary}</p></div></div>${b.links ? linksHTML(b.links) : ''}</section>`;
+  },
+
+  engineeringLab() {
+    return `<section id="engineeringLab" class="lab-section" aria-labelledby="labTitle"><div class="section-heading"><div><p class="eyebrow">02 / THE ENGINEERING LAB</p><h2 id="labTitle">Ideas you can inspect.</h2></div><p>Small, focused tools that turn lessons from my work into reproducible demonstrations.</p></div><div class="lab-grid">${ENGINEERING_LABS.map(l => `<article class="lab-card"><div class="lab-label"><img src="${iconURL(l.icon, 48)}" alt=""><span>${l.discipline}</span><span>LAB ${l.number}</span></div><h3>${l.name}</h3><p class="lab-question">${l.question}</p><p>${l.description}</p><small>${l.detail}</small><div class="lab-links"><a href="https://mgupta646.github.io/${l.id}/" target="_blank" rel="noopener">${l.cta} ↗</a><a href="https://github.com/mgupta646/${l.id}" target="_blank" rel="noopener" aria-label="${l.name} source code">Source code ↗</a></div></article>`).join('')}</div><p class="lab-note">Independent, AI-assisted builds. Reports use synthetic datasets; the SQL demo replays recorded model replies. These demonstrate engineering approaches, not client results or live model benchmarks.</p></section>`;
+  },
+
   workCards() {
     const track = WORK_TRACKS.find(t => t.id === this.quickTrack) || WORK_TRACKS[0];
     return track.ids.map((id, i) => {
@@ -135,12 +145,14 @@ const UI = {
   buildQuick(sectionId) {
     const q = $('#quickInner'), sec = SECTIONS.find(s => s.id === sectionId);
     this.quickSection = sec?.id || null;
+    document.title = sec ? `${sec.title} · Mehul Gupta` : 'Selected work · Mehul Gupta';
     if (sec) {
       const note = WORK_NOTES[sec.id];
       q.innerHTML = `<nav class="reader-nav" aria-label="Case study navigation"><a class="case-link" href="#quick">← Selected work</a>${this.sectionPicker(sec.id)}</nav>
         <article class="qsec reader" id="q-${sec.id}">
           <div class="qsec-h"><img src="${iconURL(sec.icon, 64)}" alt=""><div><p class="eyebrow">CASE FILE / ${String(SECTIONS.indexOf(sec) + 1).padStart(2, '0')}</p><h1 id="readerTitle" tabindex="-1">${sec.title}</h1><small>${sec.subtitle || ''}</small></div></div>
           ${note ? `<div class="case-context"><span class="work-status">${note.status}</span><p>${note.proof}</p></div>` : ''}
+          ${this.caseBrief(sec.id)}
           ${renderBlocks(sec.blocks)}
         </article><footer class="reader-footer"><a class="btn primary" href="#quick">← Back to selected work</a><a class="btn" href="mailto:${PROFILE.email}">Discuss my work ↗</a></footer>`;
     } else {
@@ -151,17 +163,20 @@ const UI = {
           <p class="qintro">From aerospace engineering to AI at NYU Stern. I connect evaluation, data quality and product decisions to the work of building useful software.</p>
           <p class="qstatus"><span class="status-dot"></span> Available Jan 2027 · Brooklyn, NY · Open to relocation</p>
           <div class="hero-links"><a class="btn primary" href="mailto:${PROFILE.email}">Let's talk ↗</a><a class="btn" href="${PROFILE.pdf}" download>Portfolio PDF ↓</a><a href="${PROFILE.linkedin}" target="_blank" rel="noopener">LinkedIn ↗</a><a href="${PROFILE.github}" target="_blank" rel="noopener">GitHub ↗</a></div>
-        </div><div class="trainer-card" aria-hidden="true"><span>BUILDER PROFILE</span><img src="${iconURL('robot', 120)}" alt=""><b>MEHUL / NYC</b><small>Engineering roots.<br>Product mindset.</small></div>
+        </div><figure class="reader-art"><img src="assets/town-cover.png" width="1536" height="1024" alt="An illustrated pixel town connecting AI research, data and aerospace."><figcaption><span>MEHUL TOWN / EXPLORER EDITION</span><button id="heroTown">Play ↗</button></figcaption></figure>
       </header>
+      <nav class="section-index" aria-label="Portfolio sections"><button data-scroll="selectedTitle">01 / Work</button><button data-scroll="engineeringLab">02 / Lab</button><button data-scroll="background">03 / About</button><button data-scroll="contact">04 / Contact</button></nav>
       <div class="proof-strip" aria-label="Selected experience"><div><b>NYU Stern</b><span>AI research & product work</span></div><div><b>2M+ records</b><span>Citi Bike analysis</span></div><div><b>Top 30</b><span>Ferrocampus 2025 · team project</span></div></div>
       <section class="selected-section" aria-labelledby="selectedTitle"><div class="section-heading"><div><p class="eyebrow">01 / SELECTED WORK</p><h2 id="selectedTitle">Built with a question in mind.</h2></div><p>Choose a lens. Explore the decisions behind the work.</p></div>
         <div class="work-filters" role="group" aria-label="Filter selected work">${WORK_TRACKS.map(t => `<button class="btn" data-track="${t.id}" aria-pressed="${t.id === this.quickTrack}">${t.name}</button>`).join('')}</div>
         <div id="workCards" class="work-grid">${this.workCards()}</div><p id="filterStatus" class="sr-only" role="status"></p>
       </section>
-      <section class="background-grid" aria-label="Background and approach"><div><p class="eyebrow">02 / HOW I WORK</p><h2>Check the assumption.<br>Then build.</h2><p>Aerospace taught me to interrogate inputs. In AI, that means testing whether an evaluation measures correctness, whether a source answers the right question, and where users get stuck after launch.</p><a class="case-link" href="#q-home">More about me ↗</a></div><div class="experience-list"><p class="eyebrow">THE PATH SO FAR</p><p><b>AI Product Graduate Fellow · NYU Stern</b><span>Aug 2026–present · ROSI AI platform</span></p><p><b>Graduate Assistant · NYU Stern VRI</b><span>Jan–Jun 2026 · V-Lab AI assistant</span></p><p><b>MS Management of Technology · NYU</b><span>Dec 2026 · Government of India scholarship</span></p><p><b>BE Aerospace Engineering</b><span>Chandigarh University · 2024</span></p></div></section>
+      ${this.engineeringLab()}
+      <section id="background" class="background-grid" aria-label="Background and approach"><div><p class="eyebrow">03 / HOW I WORK</p><h2>Check the assumption.<br>Then build.</h2><p>Aerospace taught me to interrogate inputs. In AI, that means testing whether an evaluation measures correctness, whether a source answers the right question, and where users get stuck after launch.</p><a class="case-link" href="#q-home">More about me ↗</a><div class="skill-bands" aria-label="Technical toolkit"><span>Python / SQL / JavaScript</span><span>LLM evaluation / MCP / APIs</span><span>Tableau / Power BI</span><span>Requirements / Product delivery</span></div></div><div class="experience-list"><p class="eyebrow">THE PATH SO FAR</p><p><b>AI Product Graduate Fellow · NYU Stern</b><span>Aug 2026–present · ROSI AI platform</span></p><p><b>Graduate Teaching Fellow · NYU Stern</b><span>Aug 2026–present · Futures & Options</span></p><p><b>Graduate Assistant · NYU Stern VRI</b><span>Jan–Jun 2026 · V-Lab AI assistant</span></p><p><b>MS Management of Technology · NYU Tandon</b><span>Expected Dec 2026 · Government of India scholarship</span></p><p><b>BE Aerospace Engineering</b><span>Chandigarh University · May 2024</span></p></div></section>
+      <div class="recognition-row"><a href="#q-flowmind"><img src="${iconURL('train',48)}" alt=""><span><b>Ferrocampus · Top 30</b><small>FlowMind AI · Team project · 2025 ↗</small></span></a><a href="#q-windtunnel"><img src="${iconURL('tunnel',48)}" alt=""><span><b>Published aerospace research</b><small>Wind-tunnel design · IJERT · 2024 ↗</small></span></a><a href="#q-trophy"><img src="${iconURL('trophy',48)}" alt=""><span><b>NASA Space Apps · Regional Gold</b><small>Team recognition · 2023 ↗</small></span></a></div>
       <div class="archive-row">${this.sectionPicker()}<a class="case-link" href="#q-trophy">Awards & credentials ↗</a></div>
-      <footer class="contact-card"><div><p class="eyebrow">03 / NEXT CHAPTER</p><h2>Let's build something useful.</h2><p>Seeking AI product, AI engineering and analytics roles.<br>Available January 2027 · F-1 OPT, STEM eligible.</p></div><a class="btn primary" href="mailto:${PROFILE.email}">${PROFILE.email} ↗</a></footer>
-      <div class="qfoot"><p>Every landmark is a chapter. Every sprite is drawn in code.</p><button class="case-link" id="returnTown">Explore Mehul Town →</button></div>`;
+      <footer id="contact" class="contact-card"><div><p class="eyebrow">04 / NEXT CHAPTER</p><h2>Let's build something useful.</h2><p>Seeking AI product, AI engineering and analytics roles.<br>Available January 2027 · F-1 OPT, STEM eligible.</p></div><a class="btn primary" href="mailto:${PROFILE.email}">${PROFILE.email} ↗</a></footer>
+      <div class="qfoot"><p>Original pixel world. Real projects. A little curiosity.<br>Cover illustration created with AI; playable sprites drawn in code.</p><button class="case-link" id="returnTown">Explore Mehul Town →</button></div>`;
       q.querySelectorAll('[data-track]').forEach(b => b.onclick = () => {
         this.quickTrack = b.dataset.track;
         q.querySelectorAll('[data-track]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
@@ -169,6 +184,13 @@ const UI = {
         $('#filterStatus').textContent = `Showing three ${b.textContent} projects.`;
       });
       $('#returnTown').onclick = () => this.closeQuick();
+      $('#heroTown').onclick = () => this.closeQuick();
+      q.querySelectorAll('[data-scroll]').forEach(b => b.onclick = () => {
+        const destination = document.getElementById(b.dataset.scroll);
+        const heading = destination?.matches('h2') ? destination : destination?.querySelector('h2');
+        if (heading) { heading.setAttribute('tabindex', '-1'); heading.focus({ preventScroll: true }); }
+        destination?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth', block: 'start' });
+      });
     }
     $('#workSelect').onchange = e => { if (e.target.value) this.openQuick(e.target.value); };
     q.onclick = e => {
@@ -198,6 +220,7 @@ const UI = {
   closeQuick(navigate = true) {
     if ($('#quick').hidden) return;
     $('#quick').hidden = true;
+    document.title = 'Mehul Town · Mehul Gupta';
     document.body.classList.remove('reading');
     this.quickIsolated.forEach(([el, inert]) => { el.inert = inert; });
     this.quickIsolated = [];

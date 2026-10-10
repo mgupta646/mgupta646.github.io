@@ -550,22 +550,39 @@ const OUT = "#2a2230";
 function roofShingles(P, x, y, w, h, base, dark, light) {
   P.r(x, y, w, h, OUT);
   P.r(x + 1, y + 1, w - 2, h - 2, base);
-  const band = Math.max(2, (h * 0.18) | 0);
-  P.r(x + 1, y + h - 1 - band, w - 2, band, dark);
-  for (let j = 4; j < h - 2; j += 5) {
-    P.r(x + 1, y + j, w - 2, 1, dark);
-    const off = (j / 5) % 2 ? 4 : 0;
-    for (let i = off + 2; i < w - 2; i += 8) { P.r(x + i, y + j - 4, 1, 4, dark); P.p(x + i + 1, y + j - 4, light); P.p(x + i + 2, y + j - 4, light); }
+  // Staggered clay tiles with a lit lip and a two-pixel undercut.
+  // Confine every mark to the existing silhouette and collision footprint.
+  for (let row = 0, j = 2; j < h - 3; row++, j += 5) {
+    for (let i = 2 - (row % 2) * 4; i < w - 2; i += 8) {
+      const left = Math.max(1, i), right = Math.min(w - 2, i + 7);
+      if (right <= left) continue;
+      P.r(x + left, y + j, right - left, 1, light);
+      P.r(x + left, y + j + 3, right - left, 1, dark);
+      if (i > 0) P.r(x + i, y + j, 1, 4, dark);
+      if ((row + i) % 3 === 0) P.r(x + left + 1, y + j + 1, Math.max(1, right - left - 2), 1, '#ffffff12');
+    }
   }
-  P.r(x + 1, y + 1, w - 2, 2, light); P.r(x + 1, y + 1, w - 2, 1, "#ffffff40");
+  P.r(x + 1, y + h - 4, w - 2, 3, dark);
+  P.r(x + 2, y + h - 4, w - 4, 1, light);
+  P.r(x + w - 4, y + 2, 3, h - 5, '#182c3530');
+  P.r(x + 1, y + 1, w - 2, 2, light);
+  P.r(x + 1, y + 1, w - 2, 1, '#fff3ce');
 }
 
 function windowPx(P, x, y, w = 12, h = 10, lit = false) {
   P.r(x - 1, y - 1, w + 2, h + 2, OUT);
   P.r(x, y, w, h, "#ffffff");
   P.r(x + 1, y + 1, w - 2, h - 2, lit ? "#ffe680" : "#78b8e8");
-  if (!lit) { P.p(x + 2, y + 2, "#d8f0ff"); P.p(x + 3, y + 2, "#d8f0ff"); P.p(x + 2, y + 3, "#d8f0ff"); }
+  P.r(x + 1, y + h - 3, w - 2, 2, lit ? '#e5a650' : '#4388a5');
+  if (!lit) {
+    for (let i = 0; i < Math.min(w - 4, h - 4); i++) {
+      P.p(x + 2 + i, y + h - 3 - i, '#ccefea');
+      if (i < 3) P.p(x + 5 + i, y + h - 3 - i, '#b1dcd9');
+    }
+  }
   P.r(x + (w >> 1), y + 1, 1, h - 2, "#ffffff"); P.r(x + 1, y + (h >> 1), w - 2, 1, "#ffffff");
+  P.r(x - 2, y + h, w + 4, 2, '#a99c80');
+  P.r(x - 2, y + h, w + 4, 1, '#fff0c9');
 }
 
 function buildHouse(lit) {
@@ -637,8 +654,20 @@ function buildLab(lit) {
   P.r(2, 28, 108, 22, OUT); P.r(3, 29, 106, 20, "#46557a");
   for (let i = 6; i < 106; i += 12) P.r(3 + i, 29, 1, 20, "#3a4868");
   P.r(3, 29, 106, 3, "#6a7ca4"); P.r(3, 46, 106, 3, "#2e3a58");
+  // Rooftop skylights, brass rails and stepped ventilation housings.
+  for (const sx of [43, 64]) {
+    P.box(sx, 34, 17, 10, '#304a62', '#202f46');
+    P.r(sx + 1, 35, 15, 2, '#95c6cd');
+    P.r(sx + 2, 38, 13, 4, '#426e89');
+    P.r(sx + 8, 35, 1, 8, '#d1d8bc');
+  }
+  P.r(8, 47, 96, 1, '#d5b870');
   // walls
   P.box(5, 49, 102, 51, "#dfe6ee", OUT); P.r(6, 92, 100, 7, "#b8c4d2");
+  for (let wy = 77; wy < 92; wy += 5) {
+    P.r(6, wy, 100, 1, '#c7d2d2');
+    for (let wx = 9 + ((wy - 77) / 5 % 2) * 5; wx < 106; wx += 10) P.r(wx, wy - 4, 1, 4, '#d1dcda');
+  }
   // glass strips
   const glass = (gx, gw) => {
     P.r(gx - 1, 55, gw + 2, 18, OUT); P.r(gx, 56, gw, 16, lit ? "#9ff0ff" : "#48c8e8");
@@ -651,6 +680,11 @@ function buildLab(lit) {
   // sliding door
   P.r(46, 63, 20, 37, OUT); P.r(47, 64, 18, 36, "#5ad0f0"); P.r(55, 64, 2, 36, OUT);
   P.line(49, 96, 53, 68, "#c8f8ff"); P.line(59, 96, 63, 68, "#c8f8ff");
+  for (const px of [13, 77]) {
+    P.box(px, 91, 22, 6, '#a46b4b', '#564f41');
+    P.r(px - 1, 89, 24, 3, '#47795c'); P.r(px + 2, 87, 18, 3, '#73a06c');
+    for (let fx = px + 3; fx < px + 20; fx += 6) { P.r(fx, 87, 2, 2, '#f3d479'); P.p(fx, 87, '#fff6c4'); }
+  }
   return c;
 }
 

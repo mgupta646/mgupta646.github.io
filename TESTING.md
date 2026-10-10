@@ -14,7 +14,17 @@ Run locally with `python -m http.server 8765 --bind 127.0.0.1`, then open `http:
 - The five-stop recruiter tour starts, walks to V-Lab and opens its landmark panel. Read Case opens that chapter in the reader.
 - No warning or error messages appeared in the browser log during these checks.
 
-## Scope
+## Illustrated field-guide follow-up, October 10, 2026
+
+- New cover illustration and editorial landing inspected at 1280 × 720, 390 × 844 and 320 × 740.
+- All 22 chapters rechecked at 320px with no horizontal reader overflow, including the expanded Dev Desk and new case briefs.
+- Four engineering reports returned HTTP 200 and matching page titles. Their public repository READMEs were checked against the descriptions; synthetic/recorded data is explicitly labeled.
+- Keyboard Enter opens Selected Work. Returning to the town restores visible Quick View focus. New Lab navigation scrolls to the correct section and focuses its heading.
+- Direct case-study refresh, title loading, illustration loading, and the five-stop tour were rechecked.
+- New raster cover is 1536 × 1024, approximately 3.7 MB; it is reused from browser cache between the title and reader. Gameplay rendering is idle behind the opaque title and paused in reading mode.
+- LinkedIn's public-facing profile content was reviewed in the signed-in session. Graduate Teaching Fellow dates are included in the overview. December 2026 follows the supplied portfolio PDF and LinkedIn About; the Education entry still differs and was not edited.
+
+## Validation limits
 
 These are browser viewport checks, not physical iOS/Android device tests. Reduced-motion effects and animation/audio suspension were reviewed in the implementation; dedicated assistive-technology, battery and performance benchmarks have not been run. The existing external project demos and portfolio PDF were retained; they were not comprehensively audited or rewritten.
 
