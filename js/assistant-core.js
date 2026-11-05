@@ -9,7 +9,7 @@
     else if(words.length>45) text+='…';
     return text;
   };
-  const stop = new Set('what which who how why does about tell me your you the a an is are do can portfolio project projects work'.split(' '));
+  const stop = new Set('what which who how why does about tell me your you the a an is are do can portfolio project projects work to for with and of in on at from it its his her this that'.split(' '));
   const words = q => (q.toLowerCase().match(/[a-z0-9]+/g)||[]).filter(w=>w.length>1&&!stop.has(w));
   function search(query, sections) {
     const terms=words(query);
@@ -23,15 +23,57 @@
     if(matches.length) return {text:short(plain(matches[0].blurb)),id:matches[0].id};
     return {text:'I can help with Mehul’s published projects and background. Try “Mango”, “V-Lab”, “Citi Bike” or “skills”, or enable browser AI for more flexible questions.',id:null};
   }
-  function context(query,sections) {
+  function context(query,sections,topicIds=[]) {
     const matches=search(query,sections);
-    const chosen=matches.length?matches:sections.filter(s=>['home','vlab','mango'].includes(s.id));
+    const direct=sections.find(s=>s.id===fallback(query,sections).id);
+    const chosen=[...new Set([...topicIds.map(id=>sections.find(s=>s.id===id)),direct,...matches].filter(Boolean))].slice(0,3);
+    if(!chosen.length) chosen.push(...sections.filter(s=>['home','vlab','mango'].includes(s.id)));
     return chosen.map(s=>{
-      const details=(s.blocks||[]).filter(b=>['p','facts','stats'].includes(b.type)).map(b=>plain(b.text||JSON.stringify(b.items||[]))).join(' ');
-      return `${s.title}: ${plain(s.blurb)} ${details.slice(0,750)}`;
+      const details=(s.blocks||[]).filter(b=>!['img','gallery','code'].includes(b.type)).map(b=>plain(b.text||JSON.stringify(b))).join(' ');
+      return `${s.title}: ${plain(s.blurb)} ${details.slice(0,2200)}`;
     }).join('\n');
   }
-  const api={plain,short,search,fallback,context};
+  const refusal="I only answer questions about Mehul’s published work and background. Ask about a project, his skills or experience, or say “guide me to Mango”.";
+  function restricted(query) {
+    return /\b(ignore|override|disregard|forget)\b.{0,45}\b(instructions|rules|prompt|previous)\b|\b(system prompt|jailbreak|pretend you|act as)\b/i.test(query)
+      || /^(please\s+)?(write|generate|create|compose|solve|calculate|translate)\b|\b(can|could|would|will) you (write|generate|create|compose|solve|calculate|translate)\b/i.test(query)
+      || /\b(recipe|lottery|stock price|capital of|president|sports score)\b/i.test(query)
+      || (/\bweather\b/i.test(query) && !/\bmango\b/i.test(query));
+  }
+  function inScope(query,sections) {
+    // A local gate runs before any model call, including when conversation history exists.
+    if(restricted(query)) return false;
+    if(/\b(hi|hello|hey|mehul|your|you|his|he|skills|background|experience|education|contact|email|hire|availability|resume|career|achievements)\b/i.test(query)) return true;
+    const generic=new Set('ai data software studio research assistant voice agent project projects local platform library the'.split(' '));
+    const terms=words(query).filter(w=>!generic.has(w));
+    return sections.some(s=>terms.some(w=>words(s.id+' '+s.title).includes(w)));
+  }
+  function navigation(query,sections) {
+    const explicit=/\b(take me|guide me|walk me|bring me|go to|visit|show me|start.{0,12}tour)\b/i.test(query);
+    const specific=references(query,sections).filter(s=>!['home','library','contact'].includes(s.id));
+    const overview=!specific.length && /\b(ai|artificial intelligence|analytics|data|aerospace)\b/i.test(query) && /\b(work|projects|portfolio)\b/i.test(query) && /\b(mehul|your|his|you)\b/i.test(query);
+    if(!explicit && !overview) return null;
+    if(/\b(don't|do not|not|never)\b/i.test(query)) return null;
+    let ids=[];
+    const group=/\b(ai|artificial intelligence)\b/i.test(query)?['ai','mango']:/\b(data|analytics)\b/i.test(query)?['data']:/\b(aerospace|aviation)\b/i.test(query)?['aero']:/\b(education|teaching)\b/i.test(query)?['edu']:null;
+    if(specific.length) ids=[specific[0].id];
+    else if(group) ids=sections.filter(s=>group.includes(s.cat)||group.includes(s.id)).map(s=>s.id);
+    else if(/\b(skills|technologies|stack)\b/i.test(query)) ids=['library'];
+    else if(/\b(contact|mailbox)\b/i.test(query)) ids=['contact'];
+    else if(/\b(around|tour|highlights)\b/i.test(query)||/^guide me[.!?]*$/i.test(query.trim())) ids=['home','vlab','mango','contact'];
+    else ids=search(query.replace(/take me|guide me|walk me|bring me|go to|visit|show me/gi,''),sections).slice(0,1).map(s=>s.id);
+    return [...new Set(ids)].filter(id=>sections.some(s=>s.id===id));
+  }
+  function routeSummary(query,ids,sections) {
+    if(/\b(ai|artificial intelligence)\b/i.test(query) && ids.length>1) return 'Mehul’s AI work spans V-Lab research, the ROSI platform, MaGic Filter and Mango’s local voice interface. Let’s explore the projects—use NEXT STOP to continue, or move to pause.';
+    if(ids.length===1) return short(plain(sections.find(s=>s.id===ids[0]).blurb)+' Let’s explore this project.');
+    return 'Mehul’s work connects AI products, data analytics and aerospace. I’ll guide you through the selected projects. Use NEXT STOP to continue, or move to pause and explore freely.';
+  }
+  function references(query,sections) {
+    const normalized=query.toLowerCase().replace(/[^a-z0-9]/g,'');
+    return sections.filter(s=>[s.id,s.title].some(name=>name.length>3 && normalized.includes(name.toLowerCase().replace(/[^a-z0-9]/g,''))));
+  }
+  const api={plain,short,search,fallback,context,inScope,navigation,restricted,refusal,routeSummary,references};
   if(typeof module!=='undefined') module.exports=api;
   else window.PortfolioGuide=api;
 })();

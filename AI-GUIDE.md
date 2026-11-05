@@ -15,7 +15,11 @@ Questions and the recent conversation stay in page memory; there is no analytics
 
 Browser SpeechRecognition is separate from Mango Desktop's offline Whisper pipeline. Some browsers send audio to their speech-recognition service. The UI discloses this before the microphone button is used. Recording is initiated only by a click, stops when the panel closes or the page is hidden, and never automatically sends recognized text. Unsupported browsers and denied permissions retain text input.
 
-AI receives bounded excerpts from the portfolio and at most two previous exchanges. Prompts request 1–2 sentences; display limits are 45 words / 280 characters. Generated output is rendered as text, never HTML. Responses do not execute commands, navigate automatically, or edit the portfolio. The nearby chapter link is selected by deterministic retrieval, not invented by the model. Small-model answers can still be wrong; the linked chapter is the source of truth.
+AI receives bounded excerpts from the portfolio and at most two previous exchanges. A local topic gate rejects unrelated requests and common prompt overrides before inference; the model is instructed to discuss only Mehul and decline facts absent from the published context. These controls reduce off-topic answers but are not a formal guarantee against every phrasing or model error. Prompts request 1–2 sentences; display limits are 45 words / 280 characters. Generated output is rendered as text, never HTML. The nearby chapter link is selected by deterministic retrieval, not invented by the model.
+
+Explicit requests such as “take me to Mango”, “show me your AI projects”, “show me your skills” and “guide me around” start routes through existing landmarks. The local intent router selects validated chapter IDs and calls the game's existing tour/pathfinding system. Model output never executes actions. Movement pauses a tour; NEXT STOP continues it. Navigation also works in instant mode, without a model download.
+
+Category questions such as “What is Mehul AI work?” also give a short, source-based overview and start the corresponding tour. Project panels include **Ask Guide**. The active chapter becomes conversation context for questions such as “How was it built?” and “When?”. Detailed replies use the chapter's published case-study blocks; missing dates or details must be acknowledged rather than invented. Topic summaries and routes are prepared locally for immediate response; optional AI handles flexible project questions.
 
 ## Editing and checks
 
