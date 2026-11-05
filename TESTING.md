@@ -64,3 +64,4 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 - Browser check: an unrelated geography question receives the portfolio-only reply; “Take me to Mango” starts the existing walking tour with Mango as its destination.
 - The local topic gate and grounded model prompt are defense layers, not a guarantee of perfect model compliance.
 - Category-question routing and retained project context for how/when follow-ups pass the regression suites. The guide receives detailed case-study blocks and instructions to acknowledge missing dates.
+- A real Chrome answer explained Mango's implementation. A subsequent date question hallucinated 2024, which prompted deterministic date-question handling and a generated-number check. Regression tests now assert that missing dates never reach inference and that unsupported years are rejected.
