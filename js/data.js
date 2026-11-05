@@ -578,6 +578,14 @@ const SECTIONS = [
         { t: "Regional user group", d: "Invited to present MaGic Filter", k: "bronze" },
       ]},
       { type: "h", text: "Credentials" },
+      { type: "cards", items: [
+        { title: "Claude Academy: Claude 101", sub: "Anthropic · Issued November 2, 2026", text: "Verified course completion badge. Completed Claude 101, covering effective prompting, AI output evaluation, Projects, Skills, connectors and research workflows." },
+        { title: "AI Leadership", sub: "OpenAI Academy · Issued October 30, 2026 · Expires April 30, 2027", text: "Completed the AI Leadership badge: AI roadmap prioritization, evidence-backed value, governance and operating models, adoption planning, change leadership, and responsible AI deployment. The issuer’s earning criterion is completion of the course assessment with a score of 80% or higher." },
+      ]},
+      { type: "links", items: [
+        { label: "Verify Claude 101 completion", url: "https://academy.claude.com/verify/4b8fc3e65b238c4ff7121f7c1dfe83a4" },
+        { label: "Verify OpenAI AI Leadership badge", url: "https://oaiacademy.credential.net/4e177f40-b83a-4944-8102-70aa387d3777" },
+      ]},
       { type: "tags", items: ["NYU Data Science Bootcamp (badge)", "Google: Foundations of Data Science", "Google AI Essentials", "Google: Foundations of Project Management", "Autodesk CAD/CAM/CAE Specialization"] },
       { type: "links", items: [
         { label: "NYU bootcamp credential", url: L.bootcamp },

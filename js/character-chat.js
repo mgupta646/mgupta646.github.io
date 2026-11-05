@@ -133,6 +133,7 @@
     const fallback=core.fallback(retrievalQuestion,SECTIONS);
     const dated=core.dateAnswer(question,SECTIONS,topicIds);
     if(dated) {say(dated,topicIds[0]||fallback.id);status('Date checked against the published chapter.');return;}
+    if(fallback.direct) {say(fallback.text,fallback.id);status('From the published portfolio · open the chapter for details and verification links.');return;}
     if(mode!=='ai') {say(fallback.text,fallback.id);status(mode==='loading'?'Instant answer while AI loads.':'Instant portfolio answer · enable AI for flexible conversation.');return;}
     busy(true);status('Thinking… the first reply may take longer while the GPU warms up.');
     $('bubbleText').textContent='Thinking about your new question…';hasBubble=true;

@@ -60,6 +60,8 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 8. Enable music in the town; reading mode and a hidden browser tab should pause playback.
 # Portfolio-only guide and navigation — November 5, 2026
 
+- `node tests/guide-coverage.cjs`: 37 natural-language questions across all 23 chapters; award/trophy/achievement aliases, new badge facts and dates, award-tour routing and personal-detail refusals. Broad topic checks are regression coverage, not a claim that any possible question or generated answer is correct.
+
 - Tour lifecycle suite checks guide detachment on pause/completion, orphan cleanup, path cancellation and completed-stop filtering. Chat confirmation tests verify no navigation before consent and no navigation after declining.
 - Live Chrome: answer/offer stays visible without movement, Not now keeps the conversation, keyboard Enter confirms only once, Mango arrival opens the correct panel, and 390px mobile replacement to Skill Library starts an active single-stop route. Found and removed stale pause/end toast messages during route replacement.
 

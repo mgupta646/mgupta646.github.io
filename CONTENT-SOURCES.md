@@ -21,3 +21,11 @@ Reviewed October 10, 2026.
 - [Mango repository README](https://github.com/mgupta646/mango-voice-agent) supplies the new case study's functionality, architecture and prototype limits.
 - The owner's referenced voice-agent chat establishes the GitHub Pages + Hugging Face + browser inference design. The hosted [model card](https://huggingface.co/mehulg/mango-web-qwen3-1.7b) specifies WebLLM 0.2.87, Qwen3 1.7B, attribution, download size and hardware requirements.
 - Mango Desktop uses Whisper/Ollama; this portfolio uses a separate browser model and browser speech recognition. These are explicitly distinguished.
+# Credentials checked November 5, 2026
+
+LinkedIn licenses and certifications: https://www.linkedin.com/in/mehulmg/details/certifications/
+
+- Claude Academy: Claude 101 — Mehul Gupta; issuer Anthropic/Claude Academy; verified completion badge issued November 2, 2026. Verification: https://academy.claude.com/verify/4b8fc3e65b238c4ff7121f7c1dfe83a4 . Course-topic description comes from Mehul's LinkedIn credential entry.
+- OpenAI Academy: AI Leadership — Mehul Gupta; issued October 30, 2026; expires April 30, 2027. Issuer lists AI roadmap prioritization, evidence-backed value articulation, governance/operating models, adoption/change leadership, and responsible deployment. Earning criterion: course assessment score of 80% or higher, not a claim of Mehul's exact score. Verification: https://oaiacademy.credential.net/4e177f40-b83a-4944-8102-70aa387d3777 .
+
+Only public profile/credential material is used in the portfolio.
