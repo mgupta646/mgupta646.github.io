@@ -7,17 +7,18 @@ self.onmessage = async ({data}) => {
       const revision='d54cc9e4326482e89638e4f6445d04469c604b2b';
       const base=`https://huggingface.co/mehulg/mango-web-qwen3-1.7b/resolve/${revision}/`;
       engine=new MLCEngine({
-        appConfig:{model_list:[{model:base,model_id:'Mango-Web-Qwen3-1.7B',model_lib:base+'model-lib.wasm',overrides:{context_window_size:4096}}],useIndexedDBCache:true},
+        appConfig:{model_list:[{model:base,model_id:'Mango-Web-Qwen3-1.7B',model_lib:base+'model-lib.wasm',overrides:{context_window_size:2048,prefill_chunk_size:128}}],useIndexedDBCache:true},
         initProgressCallback:p=>self.postMessage({type:'progress',text:p.text,progress:p.progress}),
       });
       await engine.reload('Mango-Web-Qwen3-1.7B');
       self.postMessage({type:'ready'});
     } else if(data.type==='ask' && engine) {
-      const chunks=await engine.chat.completions.create({messages:data.messages,max_tokens:80,temperature:0.25,stream:true,extra_body:{enable_thinking:false}});
+      const chunks=await engine.chat.completions.create({messages:data.messages,max_tokens:64,temperature:0.25,stream:true,extra_body:{enable_thinking:false}});
       let text='',tokens=0;
       for await(const chunk of chunks) {
         text+=chunk.choices[0]?.delta?.content||'';
         if(++tokens%8===1) self.postMessage({type:'generating',id:data.id});
+        await new Promise(resolve=>setTimeout(resolve,12));
       }
       self.postMessage({type:'answer',id:data.id,text});
     }

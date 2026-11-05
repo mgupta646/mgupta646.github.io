@@ -966,7 +966,7 @@
   }
 
   addEventListener("keydown", (e) => {
-    if (e.target.closest?.('#characterChat, input, textarea, [contenteditable="true"]')) return;
+    if (e.target.closest?.('input, textarea, [contenteditable="true"]') || (e.target.closest?.('#characterChat') && window.CharacterChat?.focused())) return;
     Audio8.unlock();
     const code = e.code;
     kIdx = code === konami[kIdx] ? kIdx + 1 : code === konami[0] ? 1 : 0;
@@ -1142,7 +1142,7 @@
   resize();
   cam.x = (WORLD_W - VW) / 2; cam.y = (WORLD_H - VH) / 2;
   updateHUD();
-  let last = performance.now(), t0 = last, mmT = 0, frameId = null;
+  let last = performance.now(), t0 = last, mmT = 0, frameId = null, slowAIFrames=0;
   function resumeFrames() {
     if (frameId === null && !document.hidden && $("#quick").hidden) { last = performance.now(); frameId = requestAnimationFrame(frame); }
   }
@@ -1152,7 +1152,9 @@
     frameId = null;
     if (document.hidden || !$("#quick").hidden) return;
     // Ambient title animation needs only 30fps; gameplay keeps native rAF timing.
-    if (!started && now - last < 1000 / 30) { frameId = requestAnimationFrame(frame); return; }
+    const aiWorking=window.CharacterChat?.working();
+    if (aiWorking && now-last>250) {if(++slowAIFrames>=3){window.CharacterChat.overloaded();slowAIFrames=0;}} else if(!aiWorking) slowAIFrames=0;
+    if ((!started || aiWorking) && now - last < 1000 / 30) { frameId = requestAnimationFrame(frame); return; }
     // rAF timestamps can precede t0 on the first frame: clamp so t and dt are never negative
     const dt = Math.max(0, Math.min(0.05, (now - last) / 1000)), t = Math.max(0, (now - t0) / 1000); last = Math.max(last, now);
     bumpCD -= dt; shake = Math.max(0, shake - dt); flash = Math.max(0, flash - dt * 1.5);

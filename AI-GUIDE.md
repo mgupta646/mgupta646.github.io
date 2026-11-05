@@ -1,5 +1,7 @@
 # Character chat
 
+Performance update: browser AI uses a 2048-token context, 128-token prefill batches, a 1600-character chapter excerpt, one prior exchange, and a 64-token reply limit. The worker yields between generated tokens. The game targets 30fps during model loading/inference and stops AI after three frames over 250ms. A 30-second reply timeout falls back to instant answers. Sending another question cancels the previous worker and answers immediately in instant mode. The speech bubble changes to a pending message immediately. Closing chat releases keyboard movement. These mitigations cannot guarantee smooth GPU inference on every device; a hosted inference endpoint would remove the visitor-side model workload.
+
 Start the game, then choose **Talk to Mehul**. Type a question or tap the microphone, review its transcription, and send. A short reply appears above the character. The side panel keeps the latest exchanges and links to the relevant portfolio chapter. Typing suspends movement and game shortcuts. On small screens, the panel collapses after a reply so the character remains visible.
 
 ## Two explicit modes

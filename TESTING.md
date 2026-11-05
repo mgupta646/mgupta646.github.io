@@ -60,6 +60,8 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 8. Enable music in the town; reading mode and a hidden browser tab should pause playback.
 # Portfolio-only guide and navigation — November 5, 2026
 
+- Performance regressions: a new question replaces the previous bubble with pending text; another submission terminates a pending worker; the game can stop inference on sustained long frames. Event tests, retrieval tests, route tests and syntax checks pass.
+
 - Added regression checks for off-topic rejection before model calls, common instruction overrides, explicit routes, unknown destinations and negated movement requests.
 - Browser check: an unrelated geography question receives the portfolio-only reply; “Take me to Mango” starts the existing walking tour with Mango as its destination.
 - The local topic gate and grounded model prompt are defense layers, not a guarantee of perfect model compliance.

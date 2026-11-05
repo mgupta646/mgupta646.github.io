@@ -22,7 +22,8 @@ function setup(voice=true) {
   el('chatMic').onclick();s.recognizers[1].onerror({error:'not-allowed'});assert.match(el('chatStatus').textContent,/denied/);
   await el('enableAI').onclick();const worker=s.workers[0];assert.equal(worker.last.type,'load');
   worker.onmessage({data:{type:'ready'}});el('chatForm').onsubmit({preventDefault(){}});
-  assert.equal(worker.last.type,'ask');assert.ok(el('chatSend').disabled);
+  assert.equal(worker.last.type,'ask');assert.equal(el('chatSend').disabled,false);
+  assert.match(el('bubbleText').textContent,/Thinking about your new question/);
   const request=worker.last;
   assert.ok(request.messages[0].content.includes('PORTFOLIO FACTS'));
   worker.onmessage({data:{type:'answer',id:request.id,text:'<think>hidden</think>Mango runs locally.'}});
@@ -42,5 +43,12 @@ function setup(voice=true) {
   rw.onmessage({data:{type:'answer',id:rw.last.id,text:'Built with local speech recognition.'}});
   const previousRequest=rw.last;r('chatInput').value='When was it built?';r('chatForm').onsubmit({preventDefault(){}});
   assert.equal(rw.last,previousRequest,'Missing-date replies bypass inference');assert.match(r('bubbleText').textContent,/isn’t listed/);
+  r('chatInput').value='How was Mango built?';r('chatForm').onsubmit({preventDefault(){}});
+  assert.ok(restricted.ctx.window.CharacterChat.working());
+  r('chatInput').value='What are your skills?';r('chatForm').onsubmit({preventDefault(){}});
+  assert.ok(rw.terminated,'A new question cancels the old worker');assert.match(r('bubbleText').textContent,/Python/);
+  await r('enableAI').onclick();restricted.workers[1].onmessage({data:{type:'ready'}});
+  r('chatInput').value='How was Mango built?';r('chatForm').onsubmit({preventDefault(){}});
+  restricted.ctx.window.CharacterChat.overloaded();assert.ok(restricted.workers[1].terminated);assert.match(r('chatStatus').textContent,/slowing/);
   console.log('PASS: dictation review, denied/unsupported mic, hidden-page stop, worker replies, cancellation and stale-message isolation.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
