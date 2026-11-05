@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const core=require('../js/assistant-core.js');
+const ctx=vm.createContext({});
+for(const file of ['data.js','selected-work.js','field-notes.js','mango-project.js']) vm.runInContext(fs.readFileSync(path.join(__dirname,'../js',file),'utf8'),ctx);
+const sections=vm.runInContext('SECTIONS',ctx);
+for(const [question,id] of [['Tell me about Mango','mango'],['V-Lab research','vlab'],['Citi Bike analytics','citibike'],['What are your skills?','library'],['How can I contact you?','contact']]) assert.equal(core.fallback(question,sections).id,id,question);
+assert.equal(core.fallback('Tell me tomorrow’s lottery results',sections).id,null);
+assert.equal(core.short('<think>hidden reasoning</think>Hello!'),'Hello!');
+assert.equal(core.short('<think>unfinished reasoning'),'');
+assert.ok(core.short('long '.repeat(400)).length<=280);
+assert.ok(core.short('word '.repeat(60)).split(/\s+/).length<=45);
+assert.ok(core.context('Mango',sections).includes('Whisper'));
+assert.ok(core.context('Mango',sections).length<3300);
+assert.equal(new Set(sections.map(s=>s.id)).size,23);
+console.log('PASS: portfolio retrieval, unknown questions, short replies, reasoning stripping and Mango chapter.');

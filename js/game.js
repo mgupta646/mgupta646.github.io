@@ -838,6 +838,8 @@
     // blit
     const sx = shake > 0 && !reducedMotion.matches ? Math.round((Math.random() - .5) * 2 * scale) : 0, sy = shake > 0 && !reducedMotion.matches ? Math.round((Math.random() - .5) * 2 * scale) : 0;
     ctx.drawImage(buf, sx, sy, VW * scale, VH * scale);
+    window.CharacterChat?.position((player.px + 8 - cam.x) * scale / dpr, (player.py - cam.y) * scale / dpr,
+      started && !UI.anyOverlay() && panelEl.hidden && dlg.mode !== 'talk');
 
     // landmark labels + name tag (crisp, on the full-res canvas)
     const fs = 8 * Math.max(1, Math.round(scale / 3));
@@ -949,7 +951,7 @@
   /* ---------- input ---------- */
   const KEYMAP = { ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down", ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right" };
   const keys = new Set(); let keyOrder = [], touchDir = null, runHeld = false;
-  const blocked = () => UI.anyOverlay() || dlg.mode === "talk" || !started;
+  const blocked = () => UI.anyOverlay() || dlg.mode === "talk" || !started || window.CharacterChat?.focused();
   const konami = ["ArrowUp", "ArrowUp", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowRight", "ArrowLeft", "ArrowRight", "KeyB", "KeyA"]; let kIdx = 0;
 
   function interact() {
@@ -964,6 +966,7 @@
   }
 
   addEventListener("keydown", (e) => {
+    if (e.target.closest?.('#characterChat, input, textarea, [contenteditable="true"]')) return;
     Audio8.unlock();
     const code = e.code;
     kIdx = code === konami[kIdx] ? kIdx + 1 : code === konami[0] ? 1 : 0;
@@ -1004,6 +1007,7 @@
   });
   addEventListener("keyup", (e) => { keys.delete(e.code); });
   addEventListener("blur", () => { keys.clear(); touchDir = null; });
+  document.addEventListener('chatfocus', () => { keys.clear(); touchDir = null; userTookControl(); hideDialog(); });
 
   cv.addEventListener("pointerdown", (e) => {
     Audio8.unlock();

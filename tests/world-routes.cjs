@@ -39,7 +39,7 @@ const result = vm.runInContext(`
 `, context);
 const report = JSON.parse(result);
 assert.equal(report.spawnBlocked, false, 'Spawn must remain walkable');
-assert.equal(report.landmarks, 22, 'All portfolio chapters must remain on the map');
+assert.equal(report.landmarks, 23, 'All portfolio chapters must remain on the map');
 assert.deepEqual(report.unreachable, [], 'Every interactive object must be reachable');
 assert.deepEqual(report.blockedBridges, [], 'Every bridge must connect to the walking network');
 assert.deepEqual(report.malformedFrames, [], 'Explorer frames must retain their 16×20 footprint');

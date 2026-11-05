@@ -7,7 +7,8 @@ An interactive, GBA-style pixel town where every building is a piece of my work:
 - **Explore:** walk with arrow keys / WASD, click or tap to walk, Shift to run
 - **Panels open automatically** when you walk up to a landmark and close when you leave
 - **Guided tour:** the red **TOUR** button lets visitors choose what to see; the guide walks them there and narrates
-- **Quick View:** a two-minute selected-work overview, with AI/product, analytics and engineering filters. Each case study has its own shareable reading link; all 22 chapters remain available in the archive selector.
+- **Quick View:** a two-minute selected-work overview, with AI/product, analytics and engineering filters. Each case study has its own shareable reading link; all 23 chapters remain available in the archive selector.
+- **Talk to Mehul:** type or dictate a question and read a short reply above the character. Instant portfolio answers work immediately; optional browser AI connects to the hosted Mango Qwen3 model. See [AI-GUIDE.md](AI-GUIDE.md) for model setup, privacy, compatibility and tests.
 - Quest log, minimap, day/night, a train, a rocket you can launch, a dog named Byte, and a secret code
 
 No build step, no frameworks, no dependencies. Plain HTML/CSS/JS. Original pixel art is drawn in code (`js/sprites.js`). Screenshots show the projects themselves. The explorer edition uses an emerald-and-paper interface, clustered tree canopies, bevelled paths, a fountain and district labels inspired by handheld-era RPGs.
