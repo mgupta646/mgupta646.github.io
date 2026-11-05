@@ -52,8 +52,9 @@
     document.activeElement?.blur();status(guided?'Guided route started.':'Open the linked chapter to explore.');
   };
   $('tourDecline').onclick=()=>{clearOffer();status('No tour started. Ask another question whenever you like.');};
-  root.addEventListener('keydown',e=>{ if(e.key==='Escape'){e.preventDefault();close();} });
-  root.addEventListener('focusin',()=>document.dispatchEvent(new Event('chatfocus')));
+  root.addEventListener('keydown',e=>{ if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();} });
+  bubble.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();clearOffer();hasBubble=false;bubble.hidden=true;}});
+  root.addEventListener('focusin',()=>{if(!$('chatBox').hidden)document.dispatchEvent(new Event('chatfocus'));});
   $('chatSource').onclick=e=>{e.preventDefault();stopMic();UI.openQuick($('chatSource').hash.slice(3));};
   function resetAI(message) {
     sequence++;
@@ -102,6 +103,13 @@
     if(pending) resetAI('Previous reply cancelled. Answering your new question instantly.');
     hasBubble=false;bubble.hidden=true;$('chatSource').hidden=true;
     stopMic();log('YOU',question);$('chatInput').value='';
+    if(/\b(stop|end|cancel|dismiss)\b.{0,20}\b(tour|guide|guiding|walking)\b/i.test(question)) {
+      window.MehulTown?.stopGuide();say('Tour stopped. You can explore freely or ask another question.',null);status('No guided route is active.');return;
+    }
+    if(/\b(resume|continue)\b.{0,20}\b(tour|guide|guiding|walking)\b/i.test(question)) {
+      close();document.activeElement?.blur();const resumed=window.MehulTown?.resumeGuide();
+      say(resumed?'Tour resumed. Use NEXT STOP to continue, or move to pause.':'There is no paused route to resume. Ask me what you’d like to explore.',null);document.activeElement?.blur();return;
+    }
     const route=core.navigation(question,SECTIONS);
     const followup=topicIds.length && (/\b(it|its|that|this|they|their)\b/i.test(question) || /^(how|when|why)[?!. ]*$/i.test(question));
     if(core.restricted(question) || (!core.inScope(question,SECTIONS) && !route?.length && !followup)) {say(core.refusal,null);status('This guide is limited to Mehul’s portfolio.');return;}
@@ -147,7 +155,7 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMic();});
   document.addEventListener('readingchange',()=>{if(document.body.classList.contains('reading'))stopMic();});
   window.CharacterChat={
-    setTopic(id) { if(SECTIONS.some(s=>s.id===id)) topicIds=[id]; },
+    setTopic(id) { if(SECTIONS.some(s=>s.id===id)) {topicIds=[id];clearOffer();} },
     askAbout(id) {
       this.setTopic(id);UI.closePanel('user');root.hidden=false;
       $('chatBox').hidden=true;$('chatToggle').onclick();

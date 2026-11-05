@@ -60,6 +60,8 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 8. Enable music in the town; reading mode and a hidden browser tab should pause playback.
 # Portfolio-only guide and navigation — November 5, 2026
 
+- Tour lifecycle suite checks guide detachment on pause/completion, orphan cleanup, path cancellation and completed-stop filtering. Chat confirmation tests verify no navigation before consent and no navigation after declining.
+
 - Tour confirmation regression: requesting a route does not call the game, declining does not move, and replying “yes” starts only the offered route.
 
 - Performance regressions: a new question replaces the previous bubble with pending text; another submission terminates a pending worker; the game can stop inference on sustained long frames. Event tests, retrieval tests, route tests and syntax checks pass.

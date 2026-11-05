@@ -438,7 +438,8 @@
     $("#tourPlanner").hidden = true;
     const resuming = tour.state === "paused";
     if (!resuming) tour.done = new Set();
-    const fresh = orderStops(ids.filter((id) => !tour.done.has(id)), first);
+    const remaining=[...new Set(ids)].filter(id=>SEC[id] && !tour.done.has(id));
+    const fresh = orderStops(remaining, remaining.includes(first)?first:null);
     tour.plan = (resuming ? tour.plan.filter((id) => tour.done.has(id)) : []).concat(fresh);
     tour.queue = fresh.slice();
     tour.current = null;
@@ -449,6 +450,7 @@
   }
   function nextStop() {
     if (tour.state !== "active") return;
+    player.path=null;player.arrive=null;
     const id = tour.queue.shift();
     if (!id) { finishTour(); return; }
     tour.current = id; tour.walking = true;
@@ -473,17 +475,19 @@
     tour.state = "paused";
     if (tour.walking && tour.current) { tour.queue.unshift(tour.current); tour.walking = false; }
     player.path = null; player.arrive = null;
+    guideLeave();
     tourBar.hidden = true; setTourBtn();
     UI.toast("Tour paused. Press <b>RESUME</b> on the left whenever you like.", 2600);
   }
   function finishTour() {
-    tour.state = "idle"; tour.current = null; tourBar.hidden = true; setTourBtn();
+    tour.state = "idle"; tour.current = null; tour.walking=false;tour.queue=[];tour.plan=[];
+    player.path=null;player.arrive=null;guideLeave();tourBar.hidden = true; setTourBtn();
     Audio8.play("fanfare");
-    talk("GUIDE", ["That's the tour! Thanks for walking around with me.", "Explore freely, or visit the MAILBOX to get in touch with Mehul."], () => { guideLeave(); if (pendingCelebrate) setTimeout(celebrate, 600); });
+    talk("GUIDE", ["That's the tour! Thanks for walking around with me.", "Explore freely, or visit the MAILBOX to get in touch with Mehul."], () => { if (pendingCelebrate) setTimeout(celebrate, 600); });
   }
   function endTour() {
-    if (tour.state === "idle") return;
-    tour.state = "idle"; tour.current = null; tour.plan = []; tour.queue = [];
+    if (tour.state === "idle" && !guide.follow) return;
+    tour.state = "idle"; tour.current = null; tour.walking=false;tour.plan = []; tour.queue = [];tour.done=new Set();
     player.path = null; player.arrive = null; tourBar.hidden = true; setTourBtn();
     UI.toast("Tour ended. Happy exploring!"); guideLeave();
     if (pendingCelebrate) setTimeout(celebrate, 800);
@@ -987,7 +991,7 @@
       return;
     }
     // let buttons/links inside the panel and tour bar handle their own Enter/Space
-    if (e.target.closest && e.target.closest("#panel, #tourBar, #hud, #tourBtn") && (code === "Space" || code === "Enter")) return;
+    if (e.target.closest && e.target.closest("#panel, #tourBar, #hud, #tourBtn, #characterBubble") && (code === "Space" || code === "Enter")) return;
     if (!panelEl.hidden && code === "Escape") { Audio8.play("close"); UI.closePanel("user"); return; }
     if (KEYMAP[code]) {
       e.preventDefault();
@@ -1007,7 +1011,7 @@
   });
   addEventListener("keyup", (e) => { keys.delete(e.code); });
   addEventListener("blur", () => { keys.clear(); touchDir = null; });
-  document.addEventListener('chatfocus', () => { keys.clear(); touchDir = null; userTookControl(); hideDialog(); });
+  document.addEventListener('chatfocus', () => { keys.clear();keyOrder.length=0;touchDir=null;userTookControl();player.path=null;player.arrive=null;hideDialog(); });
 
   cv.addEventListener("pointerdown", (e) => {
     Audio8.unlock();
@@ -1178,6 +1182,13 @@
   // handy for debugging in the console; tick(sec) advances the simulation without rendering
   window.MehulTown = {
     player, tour, npcs, train, goSection, nextStop,
+    stopGuide() {const active=tour.state!=='idle'||guide.follow;endTour();hideDialog();return active;},
+    resumeGuide() {
+      if(tour.state!=='paused'||UI.anyOverlay())return false;
+      const ids=tour.plan.filter(id=>!tour.done.has(id));
+      if(!ids.length)return false;
+      keys.clear();keyOrder.length=0;touchDir=null;hideDialog();startTour(ids,ids[0]);return true;
+    },
     guideTo(ids) {
       if(!started || UI.anyOverlay() || !Array.isArray(ids)) return false;
       const stops=[...new Set(ids)].filter(id=>SEC[id] && zonesOf(id).length);
