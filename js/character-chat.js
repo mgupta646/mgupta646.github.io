@@ -2,7 +2,7 @@
   'use strict';
   const root=document.createElement('aside');
   root.id='characterChat'; root.hidden=true; root.setAttribute('aria-label','Talk to Mehul’s portfolio guide');
-  root.innerHTML=`<button id="chatToggle" aria-expanded="false" aria-controls="chatBox">TALK TO MEHUL</button>
+  root.innerHTML=`<button id="chatToggle" aria-label="Open AI chat and portfolio guide" aria-expanded="false" aria-controls="chatBox"><span class="ai-icon" aria-hidden="true">✦</span><span>AI CHAT</span><small>ASK MEHUL</small></button><span id="chatHint">Ask about my work<br>or request a tour →</span>
     <section id="chatBox" hidden aria-label="Portfolio conversation">
       <div class="chat-heading"><div><strong>A little conversation.</strong><span id="chatMode">Portfolio guide · instant answers</span></div><button id="chatClose" aria-label="Close chat">×</button></div>
       <div id="chatLog" role="log" aria-live="off"><p>Ask about Mehul’s work, or say “take me to Mango” to explore with me.</p></div>
@@ -16,6 +16,7 @@
   bubble.innerHTML='<small>MEHUL’S GUIDE</small><button id="bubbleClose" aria-label="Dismiss reply">×</button><span id="bubbleText" role="status" aria-live="polite"></span><div id="tourOffer" hidden><p id="tourQuestion"></p><button id="tourAccept" type="button">Yes, show me</button><button id="tourDecline" type="button">Not now</button></div>';
   document.body.append(root,bubble);
   const $=id=>document.getElementById(id), core=window.PortfolioGuide;
+  try {$('chatHint').hidden=localStorage.getItem('mt_chat_seen')==='1';}catch{}
   let worker=null, mode='instant', pending=null, timer=null, sequence=0, transcript=[], hasBubble=false, visible=false;
   let recognition=null, listening=false;
   let topicIds=[];
@@ -42,6 +43,7 @@
   function stopMic() { const old=recognition; recognition=null; listening=false; old?.abort(); $('chatMic').setAttribute('aria-pressed','false'); }
   function close() { stopMic(); $('chatBox').hidden=true; $('chatToggle').setAttribute('aria-expanded','false'); document.body.classList.remove('chat-open'); $('chatToggle').focus(); }
   $('chatToggle').onclick=()=>{
+    $('chatHint').hidden=true;try{localStorage.setItem('mt_chat_seen','1');}catch{}
     if(!$('chatBox').hidden) return close();
     $('chatBox').hidden=false; $('chatToggle').setAttribute('aria-expanded','true'); document.body.classList.add('chat-open'); $('chatInput').focus();
   };
