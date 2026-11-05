@@ -326,6 +326,7 @@
     else if (tour.state === "paused") { ic.textContent = "▶"; lbl.textContent = "RESUME"; sub.textContent = "TOUR"; }
     else { ic.textContent = "▶"; lbl.textContent = "TOUR"; sub.textContent = "GUIDED"; }
     document.body.classList.toggle("touring", tour.state === "active");
+    window.CharacterChat?.tourChanged(tour.state);
   }
   function presetIds(p) {
     if (p.all) return SECTIONS.map((s) => s.id);

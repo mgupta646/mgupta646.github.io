@@ -20,6 +20,7 @@
   let recognition=null, listening=false;
   let topicIds=[];
   let offeredRoute=null;
+  let routeReply=false;
   function clearOffer() {offeredRoute=null;$('tourOffer').hidden=true;}
   const status=text=>{ $('chatStatus').textContent=text; };
   function busy(value) { $('chatSend').disabled=false; $('chatMic').disabled=value || !Recognition; }
@@ -29,6 +30,7 @@
     $('chatLog').scrollTop=$('chatLog').scrollHeight;
   }
   function say(text,id) {
+    routeReply=false;
     text=core.short(text); $('bubbleText').textContent=text; hasBubble=true;
     log('MEHUL’S GUIDE',text);
     $('chatSource').hidden=!id;
@@ -49,6 +51,7 @@
     const route=offeredRoute;clearOffer();close();document.activeElement?.blur();
     const guided=window.MehulTown?.guideTo(route);
     say(guided?'Follow me! Use NEXT STOP to continue the tour, or move to pause and explore.':'I couldn’t start that route. You can still read the linked project chapter.',route[0]);
+    routeReply=!!guided;
     document.activeElement?.blur();status(guided?'Guided route started.':'Open the linked chapter to explore.');
   };
   $('tourDecline').onclick=()=>{clearOffer();status('No tour started. Ask another question whenever you like.');};
@@ -108,7 +111,7 @@
     }
     if(/\b(resume|continue)\b.{0,20}\b(tour|guide|guiding|walking)\b/i.test(question)) {
       close();document.activeElement?.blur();const resumed=window.MehulTown?.resumeGuide();
-      say(resumed?'Tour resumed. Use NEXT STOP to continue, or move to pause.':'There is no paused route to resume. Ask me what you’d like to explore.',null);document.activeElement?.blur();return;
+      say(resumed?'Tour resumed. Use NEXT STOP to continue, or move to pause.':'There is no paused route to resume. Ask me what you’d like to explore.',null);routeReply=!!resumed;document.activeElement?.blur();return;
     }
     const route=core.navigation(question,SECTIONS);
     const followup=topicIds.length && (/\b(it|its|that|this|they|their)\b/i.test(question) || /^(how|when|why)[?!. ]*$/i.test(question));
@@ -155,6 +158,7 @@
   document.addEventListener('visibilitychange',()=>{if(document.hidden)stopMic();});
   document.addEventListener('readingchange',()=>{if(document.body.classList.contains('reading'))stopMic();});
   window.CharacterChat={
+    tourChanged(state) {if(state!=='active' && routeReply){routeReply=false;hasBubble=false;bubble.hidden=true;}},
     setTopic(id) { if(SECTIONS.some(s=>s.id===id)) {topicIds=[id];clearOffer();} },
     askAbout(id) {
       this.setTopic(id);UI.closePanel('user');root.hidden=false;
