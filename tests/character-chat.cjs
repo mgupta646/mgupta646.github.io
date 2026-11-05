@@ -4,7 +4,7 @@ const core=require('../js/assistant-core.js');
 function setup(voice=true) {
   const nodes=new Map(),events={},workers=[],recognizers=[];
   const element=()=>({hidden:false,disabled:false,value:'',textContent:'',children:[],dataset:{},style:{setProperty(){}},offsetWidth:260,offsetHeight:110,
-    setAttribute(k,v){this[k]=v;},append(...children){this.children.push(...children);},remove(){},querySelectorAll(){return [];},addEventListener(){},contains(el){return el===nodes.get('chatInput');},focus(){document.activeElement=this;},blur(){document.activeElement=null;}});
+    setAttribute(k,v){this[k]=v;},append(...children){children.forEach(c=>c.parent=this);this.children.push(...children);},get firstChild(){return this.children[0];},remove(){if(this.parent)this.parent.children.splice(this.parent.children.indexOf(this),1);},querySelectorAll(){return [];},addEventListener(){},contains(el){return el===nodes.get('chatInput');},focus(){document.activeElement=this;},blur(){document.activeElement=null;}});
   for(const id of ['chatBox','chatToggle','chatClose','chatInput','chatMic','chatSend','chatStatus','chatSource','chatLog','chatMode','enableAI','voiceNote','chatForm','bubbleText','bubbleClose']) nodes.set(id,element());
   const document={body:{append(){},classList:{add(){},remove(){},contains(){return false;}}},createElement:element,createTextNode:text=>({textContent:text}),getElementById:id=>nodes.get(id),addEventListener:(name,fn)=>events[name]=fn,dispatchEvent(){},hidden:false};
   class Recognition { constructor(){recognizers.push(this);} start(){this.started=true;} stop(){this.onend?.();} abort(){this.aborted=true;this.onend?.();} }
@@ -39,5 +39,8 @@ function setup(voice=true) {
   assert.equal(route[0],'mango');assert.match(r('bubbleText').textContent,/local voice assistant/);assert.equal(rw.last.type,'load','Routing does not execute model output');
   r('chatInput').value='How was it built?';r('chatForm').onsubmit({preventDefault(){}});
   assert.equal(rw.last.type,'ask');assert.match(rw.last.messages[0].content,/CURRENT CHAPTERS: mango/);assert.match(rw.last.messages[0].content,/requested date or fact is absent/);
+  rw.onmessage({data:{type:'answer',id:rw.last.id,text:'Built with local speech recognition.'}});
+  const previousRequest=rw.last;r('chatInput').value='When was it built?';r('chatForm').onsubmit({preventDefault(){}});
+  assert.equal(rw.last,previousRequest,'Missing-date replies bypass inference');assert.match(r('bubbleText').textContent,/isn’t listed/);
   console.log('PASS: dictation review, denied/unsupported mic, hidden-page stop, worker replies, cancellation and stale-message isolation.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

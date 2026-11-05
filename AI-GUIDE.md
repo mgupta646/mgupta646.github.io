@@ -21,6 +21,8 @@ Explicit requests such as “take me to Mango”, “show me your AI projects”
 
 Category questions such as “What is Mehul AI work?” also give a short, source-based overview and start the corresponding tour. Project panels include **Ask Guide**. The active chapter becomes conversation context for questions such as “How was it built?” and “When?”. Detailed replies use the chapter's published case-study blocks; missing dates or details must be acknowledged rather than invented. Topic summaries and routes are prepared locally for immediate response; optional AI handles flexible project questions.
 
+Date questions bypass generation: the guide returns a dated excerpt from the current chapter, or says the date is not listed. Generated numerical tokens must also appear in the supplied chapter context, otherwise the answer is replaced with an unverifiable-detail message. This catches unsupported figures, but does not prove every semantic claim correct.
+
 ## Editing and checks
 
 - `js/mango-project.js`: Mango case study, selected-work placement and public links.

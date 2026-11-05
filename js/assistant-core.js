@@ -26,7 +26,7 @@
   function context(query,sections,topicIds=[]) {
     const matches=search(query,sections);
     const direct=sections.find(s=>s.id===fallback(query,sections).id);
-    const chosen=[...new Set([...topicIds.map(id=>sections.find(s=>s.id===id)),direct,...matches].filter(Boolean))].slice(0,3);
+    const chosen=[...new Set((topicIds.length?topicIds.map(id=>sections.find(s=>s.id===id)):[direct,...matches]).filter(Boolean))].slice(0,3);
     if(!chosen.length) chosen.push(...sections.filter(s=>['home','vlab','mango'].includes(s.id)));
     return chosen.map(s=>{
       const details=(s.blocks||[]).filter(b=>!['img','gallery','code'].includes(b.type)).map(b=>plain(b.text||JSON.stringify(b))).join(' ');
@@ -71,9 +71,21 @@
   }
   function references(query,sections) {
     const normalized=query.toLowerCase().replace(/[^a-z0-9]/g,'');
-    return sections.filter(s=>[s.id,s.title].some(name=>name.length>3 && normalized.includes(name.toLowerCase().replace(/[^a-z0-9]/g,''))));
+    return sections.filter(s=>[s.id,s.title].some(name=>name.length>2 && normalized.includes(name.toLowerCase().replace(/[^a-z0-9]/g,''))));
   }
-  const api={plain,short,search,fallback,context,inScope,navigation,restricted,refusal,routeSummary,references};
+  function dateAnswer(query,sections,topicIds) {
+    if(!/\b(when|what year|which year|what date|which date|timeline)\b/i.test(query)) return null;
+    const chapters=sections.filter(s=>topicIds.includes(s.id));
+    const dated=chapters.flatMap(s=>[s.blurb,...(s.blocks||[]).filter(b=>['p','facts','stats'].includes(b.type)).map(b=>b.text||JSON.stringify(b.items||[]))])
+      .map(plain).flatMap(text=>text.split(/(?<=[.!?])\s+/)).filter(text=>/\b(?:19|20)\d{2}\b/.test(text));
+    return dated.length?short('The published chapter lists: '+dated[0]):'That date isn’t listed in the published portfolio. I can explain the project’s approach and tools, but I won’t guess when it was built.';
+  }
+  function groundedAnswer(answer,facts) {
+    const numbers=String(answer).match(/\b\d+(?:[.,]\d+)*%?/g)||[];
+    const known=new Set(String(facts).match(/\b\d+(?:[.,]\d+)*%?/g)||[]);
+    return numbers.some(n=>!known.has(n))?'I couldn’t verify that detail in the published project notes. Please check the linked chapter; I won’t guess missing dates or figures.':short(answer);
+  }
+  const api={plain,short,search,fallback,context,inScope,navigation,restricted,refusal,routeSummary,references,dateAnswer,groundedAnswer};
   if(typeof module!=='undefined') module.exports=api;
   else window.PortfolioGuide=api;
 })();
