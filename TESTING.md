@@ -61,6 +61,7 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 # Portfolio-only guide and navigation — November 5, 2026
 
 - Tour lifecycle suite checks guide detachment on pause/completion, orphan cleanup, path cancellation and completed-stop filtering. Chat confirmation tests verify no navigation before consent and no navigation after declining.
+- Live Chrome: answer/offer stays visible without movement, Not now keeps the conversation, keyboard Enter confirms only once, Mango arrival opens the correct panel, and 390px mobile replacement to Skill Library starts an active single-stop route. Found and removed stale pause/end toast messages during route replacement.
 
 - Tour confirmation regression: requesting a route does not call the game, declining does not move, and replying “yes” starts only the offered route.
 

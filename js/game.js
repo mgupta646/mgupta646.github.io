@@ -435,6 +435,7 @@
     return out;
   }
   function startTour(ids, first) {
+    UI.clearToast?.('tour-status');
     $("#tourPlanner").hidden = true;
     const resuming = tour.state === "paused";
     if (!resuming) tour.done = new Set();
@@ -477,19 +478,20 @@
     player.path = null; player.arrive = null;
     guideLeave();
     tourBar.hidden = true; setTourBtn();
-    UI.toast("Tour paused. Press <b>RESUME</b> on the left whenever you like.", 2600);
+    UI.toast("Tour paused. Press <b>RESUME</b> on the left whenever you like.", 2600,'tour-status');
   }
   function finishTour() {
+    UI.clearToast?.('tour-status');
     tour.state = "idle"; tour.current = null; tour.walking=false;tour.queue=[];tour.plan=[];
     player.path=null;player.arrive=null;guideLeave();tourBar.hidden = true; setTourBtn();
     Audio8.play("fanfare");
     talk("GUIDE", ["That's the tour! Thanks for walking around with me.", "Explore freely, or visit the MAILBOX to get in touch with Mehul."], () => { if (pendingCelebrate) setTimeout(celebrate, 600); });
   }
-  function endTour() {
+  function endTour({quiet=false}={}) {
     if (tour.state === "idle" && !guide.follow) return;
     tour.state = "idle"; tour.current = null; tour.walking=false;tour.plan = []; tour.queue = [];tour.done=new Set();
     player.path = null; player.arrive = null; tourBar.hidden = true; setTourBtn();
-    UI.toast("Tour ended. Happy exploring!"); guideLeave();
+    UI.clearToast?.('tour-status');if(!quiet)UI.toast("Tour ended. Happy exploring!",2600,'tour-status'); guideLeave();
     if (pendingCelebrate) setTimeout(celebrate, 800);
   }
   function guideJoin() {
@@ -1193,7 +1195,7 @@
       if(!started || UI.anyOverlay() || !Array.isArray(ids)) return false;
       const stops=[...new Set(ids)].filter(id=>SEC[id] && zonesOf(id).length);
       if(!stops.length) return false;
-      endTour(); keys.clear(); keyOrder.length=0; touchDir=null; hideDialog();
+      endTour({quiet:true}); keys.clear(); keyOrder.length=0; touchDir=null; hideDialog();
       startTour(stops,stops[0]);return true;
     },
     tick(sec = 1) { for (let i = 0; i < sec * 60; i++) { const dt = 1 / 60; if (started) updatePlayer(dt); updateWorld(dt); updateRocket(dt); updateDialog(dt); updateParts(dt); updateCamera(dt); } },

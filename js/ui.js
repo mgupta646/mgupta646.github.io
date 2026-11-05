@@ -258,8 +258,11 @@ const UI = {
     else this.onClose && this.onClose();
   },
 
-  toast(html, ms = 2600) {
+  clearToast(key) { document.querySelectorAll('#toasts [data-toast]').forEach(t=>{if(t.dataset.toast===key)t.remove();}); },
+  toast(html, ms = 2600, key) {
+    if(key)this.clearToast(key);
     const t = document.createElement("div");
+    if(key)t.dataset.toast=key;
     t.className = "toast"; t.innerHTML = html;
     $("#toasts").appendChild(t);
     setTimeout(() => t.classList.add("out"), ms);
