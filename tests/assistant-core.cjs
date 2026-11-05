@@ -25,6 +25,7 @@ assert.deepEqual(core.navigation('take me to Mango',sections),['mango']);
 assert.deepEqual(core.navigation('show me your skills',sections),['library']);
 assert.ok(core.navigation('show me your AI projects',sections).includes('mango'));
 assert.ok(core.navigation('what is Mehul AI work',sections).includes('mango'));
+assert.ok(core.navigation('tell me about AI work',sections).includes('mango'));
 assert.equal(core.navigation('Tell me about Mango',sections),null);
 assert.equal(core.navigation('How does your Mango AI work?',sections),null);
 assert.deepEqual(core.navigation('Take me to your Mango AI project',sections),['mango']);

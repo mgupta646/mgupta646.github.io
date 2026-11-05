@@ -13,12 +13,14 @@
       <p class="chat-note" id="voiceNote">Mic transcription may use your browser’s online speech service. Recording starts only when you tap the mic.</p>
     </section>`;
   const bubble=document.createElement('div'); bubble.id='characterBubble'; bubble.hidden=true;
-  bubble.innerHTML='<small>MEHUL’S GUIDE</small><button id="bubbleClose" aria-label="Dismiss reply">×</button><span id="bubbleText" role="status" aria-live="polite"></span>';
+  bubble.innerHTML='<small>MEHUL’S GUIDE</small><button id="bubbleClose" aria-label="Dismiss reply">×</button><span id="bubbleText" role="status" aria-live="polite"></span><div id="tourOffer" hidden><p id="tourQuestion"></p><button id="tourAccept" type="button">Yes, show me</button><button id="tourDecline" type="button">Not now</button></div>';
   document.body.append(root,bubble);
   const $=id=>document.getElementById(id), core=window.PortfolioGuide;
   let worker=null, mode='instant', pending=null, timer=null, sequence=0, transcript=[], hasBubble=false, visible=false;
   let recognition=null, listening=false;
   let topicIds=[];
+  let offeredRoute=null;
+  function clearOffer() {offeredRoute=null;$('tourOffer').hidden=true;}
   const status=text=>{ $('chatStatus').textContent=text; };
   function busy(value) { $('chatSend').disabled=false; $('chatMic').disabled=value || !Recognition; }
   function log(who,text) {
@@ -41,7 +43,15 @@
     if(!$('chatBox').hidden) return close();
     $('chatBox').hidden=false; $('chatToggle').setAttribute('aria-expanded','true'); document.body.classList.add('chat-open'); $('chatInput').focus();
   };
-  $('chatClose').onclick=close; $('bubbleClose').onclick=()=>{hasBubble=false;bubble.hidden=true;};
+  $('chatClose').onclick=close; $('bubbleClose').onclick=()=>{clearOffer();hasBubble=false;bubble.hidden=true;};
+  $('tourAccept').onclick=()=>{
+    if(!offeredRoute)return;
+    const route=offeredRoute;clearOffer();close();document.activeElement?.blur();
+    const guided=window.MehulTown?.guideTo(route);
+    say(guided?'Follow me! Use NEXT STOP to continue the tour, or move to pause and explore.':'I couldn’t start that route. You can still read the linked project chapter.',route[0]);
+    document.activeElement?.blur();status(guided?'Guided route started.':'Open the linked chapter to explore.');
+  };
+  $('tourDecline').onclick=()=>{clearOffer();status('No tour started. Ask another question whenever you like.');};
   root.addEventListener('keydown',e=>{ if(e.key==='Escape'){e.preventDefault();close();} });
   root.addEventListener('focusin',()=>document.dispatchEvent(new Event('chatfocus')));
   $('chatSource').onclick=e=>{e.preventDefault();stopMic();UI.openQuick($('chatSource').hash.slice(3));};
@@ -83,6 +93,12 @@
   };
   function submit(question) {
     question=question.trim().slice(0,400); if(!question) return;
+    if(offeredRoute && /^(yes|yes please|sure|show me|let[’']?s go|take me there|no|not now|no thanks)[.!?]*$/i.test(question)) {
+      stopMic();log('YOU',question);$('chatInput').value='';
+      if(/^(no|not now)/i.test(question))$('tourDecline').onclick();else $('tourAccept').onclick();
+      return;
+    }
+    clearOffer();
     if(pending) resetAI('Previous reply cancelled. Answering your new question instantly.');
     hasBubble=false;bubble.hidden=true;$('chatSource').hidden=true;
     stopMic();log('YOU',question);$('chatInput').value='';
@@ -92,11 +108,10 @@
     if(route) {
       if(!route.length) {say('Which place would you like to visit? Try Mango, the Skill Library, AI projects or a highlights tour.',null);return;}
       topicIds=route.slice(0,3);
-      close();document.activeElement?.blur();
-      const guided=window.MehulTown?.guideTo(route);
-      say(guided?core.routeSummary(question,route,SECTIONS):'I couldn’t start that route. You can open the project chapter below.',route[0]);
-      // Mobile say() restores launcher focus; release it so walking can begin.
-      document.activeElement?.blur();status(guided?'Guided route started.':'Open the linked chapter to explore.');return;
+      say(core.routeSummary(question,route,SECTIONS).split(/ Let’s| I’ll/)[0],route[0]);
+      offeredRoute=route.slice();$('tourOffer').hidden=false;
+      $('tourQuestion').textContent=/\bai\b/i.test(question)&&route.length>1?'Should I show you his AI work?':'Would you like me to take you there?';
+      status('Read the answer first. Choose “Yes, show me” to start the tour, or “Not now” to keep chatting.');return;
     }
     const named=core.references(question,SECTIONS);
     if(named.length) topicIds=[named[0].id];

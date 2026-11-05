@@ -5,7 +5,7 @@ function setup(voice=true) {
   const nodes=new Map(),events={},workers=[],recognizers=[];
   const element=()=>({hidden:false,disabled:false,value:'',textContent:'',children:[],dataset:{},style:{setProperty(){}},offsetWidth:260,offsetHeight:110,
     setAttribute(k,v){this[k]=v;},append(...children){children.forEach(c=>c.parent=this);this.children.push(...children);},get firstChild(){return this.children[0];},remove(){if(this.parent)this.parent.children.splice(this.parent.children.indexOf(this),1);},querySelectorAll(){return [];},addEventListener(){},contains(el){return el===nodes.get('chatInput');},focus(){document.activeElement=this;},blur(){document.activeElement=null;}});
-  for(const id of ['chatBox','chatToggle','chatClose','chatInput','chatMic','chatSend','chatStatus','chatSource','chatLog','chatMode','enableAI','voiceNote','chatForm','bubbleText','bubbleClose']) nodes.set(id,element());
+  for(const id of ['chatBox','chatToggle','chatClose','chatInput','chatMic','chatSend','chatStatus','chatSource','chatLog','chatMode','enableAI','voiceNote','chatForm','bubbleText','bubbleClose','tourOffer','tourQuestion','tourAccept','tourDecline']) nodes.set(id,element());
   const document={body:{append(){},classList:{add(){},remove(){},contains(){return false;}}},createElement:element,createTextNode:text=>({textContent:text}),getElementById:id=>nodes.get(id),addEventListener:(name,fn)=>events[name]=fn,dispatchEvent(){},hidden:false};
   class Recognition { constructor(){recognizers.push(this);} start(){this.started=true;} stop(){this.onend?.();} abort(){this.aborted=true;this.onend?.();} }
   class Worker {constructor(){workers.push(this);}postMessage(message){this.last=message;}terminate(){this.terminated=true;} }
@@ -37,7 +37,11 @@ function setup(voice=true) {
   assert.equal(rw.last.type,'load','Off-topic requests must not reach the model');assert.match(r('bubbleText').textContent,/only answer/);
   let route;restricted.ctx.window.MehulTown={guideTo(ids){route=ids;return true;}};
   r('chatInput').value='Take me to Mango';r('chatForm').onsubmit({preventDefault(){}});
-  assert.equal(route[0],'mango');assert.match(r('bubbleText').textContent,/local voice assistant/);assert.equal(rw.last.type,'load','Routing does not execute model output');
+  assert.equal(route,undefined,'Answer must not start movement');assert.equal(r('tourOffer').hidden,false);
+  r('tourDecline').onclick();assert.equal(route,undefined,'Declining must not navigate');
+  r('chatInput').value='Take me to Mango';r('chatForm').onsubmit({preventDefault(){}});
+  r('chatInput').value='yes';r('chatForm').onsubmit({preventDefault(){}});
+  assert.equal(route[0],'mango');assert.match(r('bubbleText').textContent,/Follow me/);assert.equal(rw.last.type,'load','Routing does not execute model output');
   r('chatInput').value='How was it built?';r('chatForm').onsubmit({preventDefault(){}});
   assert.equal(rw.last.type,'ask');assert.match(rw.last.messages[0].content,/CURRENT CHAPTERS: mango/);assert.match(rw.last.messages[0].content,/requested date or fact is absent/);
   rw.onmessage({data:{type:'answer',id:rw.last.id,text:'Built with local speech recognition.'}});

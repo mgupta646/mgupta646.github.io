@@ -60,6 +60,8 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 8. Enable music in the town; reading mode and a hidden browser tab should pause playback.
 # Portfolio-only guide and navigation — November 5, 2026
 
+- Tour confirmation regression: requesting a route does not call the game, declining does not move, and replying “yes” starts only the offered route.
+
 - Performance regressions: a new question replaces the previous bubble with pending text; another submission terminates a pending worker; the game can stop inference on sustained long frames. Event tests, retrieval tests, route tests and syntax checks pass.
 
 - Added regression checks for off-topic rejection before model calls, common instruction overrides, explicit routes, unknown destinations and negated movement requests.

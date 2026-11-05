@@ -29,6 +29,10 @@
 #characterBubble::after { content:''; position:absolute; bottom:-12px; left:var(--tail,50%); width:15px; height:15px; background:#fffbe9; border-right:3px solid #31574a; border-bottom:3px solid #31574a; transform:rotate(45deg); }
 #characterBubble small { display:block; color:#77815d; font:10px var(--ui); letter-spacing:1px; margin-bottom:5px; }
 #bubbleClose { position:absolute; top:2px; right:3px; pointer-events:auto; }
+#tourOffer { pointer-events:auto; border-top:1px solid #cad4b6; margin-top:10px; padding-top:7px; }
+#tourOffer p { margin:0 0 7px; font-size:13px; }
+#tourOffer button { border:1px solid #31574a; padding:6px 8px; margin-right:5px; background:#315f48; color:#fffbe9; font:700 12px var(--body); cursor:pointer; }
+#tourDecline { background:#edf1dd !important; color:#31574a !important; }
 body.reading #characterChat,body.reading #characterBubble,body.panel-open #characterChat { display:none; }
 .pfoot { flex-wrap:wrap; }
 @media(max-width:720px) {

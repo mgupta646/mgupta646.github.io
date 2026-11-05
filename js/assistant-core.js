@@ -51,7 +51,7 @@
   function navigation(query,sections) {
     const explicit=/\b(take me|guide me|walk me|bring me|go to|visit|show me|start.{0,12}tour)\b/i.test(query);
     const specific=references(query,sections).filter(s=>!['home','library','contact'].includes(s.id));
-    const overview=!specific.length && /\b(ai|artificial intelligence|analytics|data|aerospace)\b/i.test(query) && /\b(work|projects|portfolio)\b/i.test(query) && /\b(mehul|your|his|you)\b/i.test(query);
+    const overview=!specific.length && /\b(ai|artificial intelligence|analytics|data|aerospace)\b/i.test(query) && /\b(work|projects|portfolio)\b/i.test(query);
     if(!explicit && !overview) return null;
     if(/\b(don't|do not|not|never)\b/i.test(query)) return null;
     let ids=[];
