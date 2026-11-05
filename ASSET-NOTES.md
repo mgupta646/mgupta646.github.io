@@ -1,5 +1,7 @@
 # Town cover illustration
 
+Mango addition (November 5, 2026): `assets/shots/mango-control-room.png` comes from the owner's public `mgupta646/mango-voice-agent` repository, `docs/images/control-room.png`. It shows demonstration conversations, as stated in its caption. The new map robot is an original code-drawn variant of the existing town robot.
+
 - File: `assets/town-cover.png`
 - Created with the built-in image-generation tool on October 10, 2026.
 - Original illustration for the portfolio cover. The playable world is rendered separately with code-drawn sprites.

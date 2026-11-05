@@ -1,0 +1,40 @@
+#characterChat { position:fixed; right:16px; top:80px; width:304px; z-index:9; color:#254b40; font:14px/1.45 var(--body); }
+#chatToggle { float:right; border:2px solid #274b40; padding:10px 15px; background:#fff5d7; box-shadow:3px 3px #274b40; color:#254b40; font:700 17px var(--ui); cursor:pointer; }
+#chatToggle::before { content:'●'; color:#6b9a64; margin-right:8px; }
+#chatBox { clear:both; margin-top:49px; background:#fff9e9; border:3px solid #31574a; box-shadow:inset 0 0 0 2px #d7dfbb,4px 5px #183b3655; padding:14px; }
+.chat-heading { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.chat-heading strong { font:700 18px var(--ui); }
+#chatClose,#bubbleClose { border:0; background:none; color:#31574a; cursor:pointer; font:20px var(--body); padding:0 5px; }
+#chatMode { display:block; text-transform:uppercase; letter-spacing:1px; font:10px var(--ui); color:#697c62; }
+#chatLog { max-height:132px; overflow:auto; margin:10px 0; scrollbar-width:thin; }
+#chatLog p { margin:7px 0; font-size:13px; }
+#chatLog b { font-size:10px; letter-spacing:.5px; display:block; color:#637b63; }
+.chat-prompts { display:flex; flex-wrap:wrap; gap:5px; margin:8px 0; }
+.chat-prompts button { font:12px var(--body); padding:4px 8px; border:1px solid #bcc9a5; background:#edf1dd; color:#31574a; cursor:pointer; }
+#chatForm label { display:block; font-size:12px; margin-bottom:5px; }
+.chat-compose { display:flex; gap:5px; align-items:stretch; }
+#chatInput { min-width:0; width:100%; background:#fffef7; border:2px solid #91a78b; border-radius:0; color:#223f35; font:16px var(--body); padding:8px; }
+#chatMic,#chatSend { border:2px solid #31574a; background:#e1e9ce; color:#31574a; padding:7px; cursor:pointer; min-width:38px; }
+#chatMic svg { width:18px; height:21px; vertical-align:middle; }
+#chatMic[aria-pressed="true"] { background:#f5bfab; border-color:#9b4d3c; }
+#chatSend { background:#315f48; color:#fff5cf; }
+#characterChat button:disabled { opacity:.55; cursor:not-allowed; }
+#characterChat :focus-visible,#characterBubble :focus-visible { outline:3px solid #c58b32; outline-offset:2px; }
+#chatStatus { min-height:18px; font-size:11px; color:#526a57; margin:7px 0; }
+#chatSource { display:block; font-size:12px; font-weight:800; color:#285b47; margin:7px 0; }
+.chat-ai { border-top:1px solid #cad4b6; padding-top:9px; }
+#enableAI { background:none; color:#31574a; border:1px solid #91a78b; padding:6px 9px; font:700 12px var(--body); cursor:pointer; }
+.chat-note { font-size:10px; color:#63745f; margin:5px 0 0; }
+#characterBubble { position:fixed; width:260px; max-width:calc(100vw - 24px); z-index:8; padding:12px 15px; color:#223f35; background:#fffbe9; border:3px solid #31574a; box-shadow:3px 4px #173c3555; pointer-events:none; font:600 14px/1.4 var(--body); }
+#characterBubble::after { content:''; position:absolute; bottom:-12px; left:var(--tail,50%); width:15px; height:15px; background:#fffbe9; border-right:3px solid #31574a; border-bottom:3px solid #31574a; transform:rotate(45deg); }
+#characterBubble small { display:block; color:#77815d; font:10px var(--ui); letter-spacing:1px; margin-bottom:5px; }
+#bubbleClose { position:absolute; top:2px; right:3px; pointer-events:auto; }
+body.reading #characterChat,body.reading #characterBubble,body.panel-open #characterChat,body.touring #characterChat { display:none; }
+@media(max-width:720px) {
+  #characterChat { top:70px; right:10px; width:min(290px,calc(100vw - 20px)); }
+  #chatToggle { font-size:14px; padding:7px 10px; }
+  #chatBox { margin-top:38px; max-height:calc(100dvh - 95px); overflow:auto; }
+  #chatLog { max-height:90px; }
+  body.chat-open #touch,body.chat-open #help { visibility:hidden; }
+  #characterBubble { width:220px; font-size:13px; }
+}

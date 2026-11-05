@@ -1437,6 +1437,7 @@ function buildSprites() {
   SPR.dogL = SPR.dogR.map(mirror);
   SPR.dogSitR = spr(DOG_SIT, DOG_PAL); SPR.dogSitL = mirror(SPR.dogSitR);
   SPR.robot = [spr(ROBOT, ROBOT_PAL), spr(ROBOT, ROBOT_PAL2)];
+  SPR.mango = spr(ROBOT, { ...ROBOT_PAL, C:'#ef7562', L:'#9eaca8', M:'#607873', m:'#354a49' });
   const SMALL = [[16, 10, 9], [9, 18, 8], [23, 18, 8], [16, 26, 8]], SMALL_T = { x: 13, w: 6, y: 30 };
   const BIG = [[22, 13, 12], [12, 23, 11], [32, 23, 11], [17, 32, 11], [28, 32, 11], [22, 7, 7]], BIG_T = { x: 18, w: 8, y: 39 };
   SPR.tree = [

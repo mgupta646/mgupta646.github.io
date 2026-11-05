@@ -127,6 +127,7 @@ function buildWorld() {
   add({ id: "barrel", x: 10, y: 18, w: 1, h: 1, spr: "barrel" });
   // Dev deck
   add({ id: "desk", x: 40, y: 16, w: 2, h: 1, spr: "desk", screen: true, section: "dev" });
+  add({ id: "mango", x: 41, y: 19, w: 1, h: 1, spr: "mango", section: "mango" });
   add({ id: "books", x: 44, y: 15, w: 2, h: 1, spr: "bookshelf", section: "library" });
   add({ id: "stall", x: 45, y: 19, w: 2, h: 1, spr: "stall", section: "apps" });
   add({ id: "pot", x: 42, y: 15, w: 1, h: 1, spr: "pot" });
@@ -184,13 +185,13 @@ function buildWorld() {
   for (const o of World.objects) if (o.section) (World.zones[o.section] ||= []).push({ x: o.x, y: o.y, w: o.w, h: o.h });
 
   const LABELS = {
-    home: "HOME", contact: "MAILBOX", nyu: "NYU · DEC 2026", cu: "CU · MAY 2024", teaching: "TEACHING", conference: "CONFERENCE",
+    mango: "MANGO AI", home: "HOME", contact: "MAILBOX", nyu: "NYU · DEC 2026", cu: "CU · MAY 2024", teaching: "TEACHING", conference: "CONFERENCE",
     vlab: "AI LAB", magic: "MAGIC FILTER", rosi: "ROSI ENERGY", dev: "DEV DESK", library: "SKILLS", apps: "SOFTWARE STUDIO",
     aviation: "AIRFIELD", bi: "DASHBOARDS", citibike: "CITI BIKE", retail: "RETAIL OPS", gym: "GYM", trophy: "TROPHIES",
     rocket: "LAUNCH PAD", windtunnel: "WIND TUNNEL", astro: "TELESCOPE", flowmind: "STATION",
   };
   const primary = {
-    home: "house", contact: "mailbox", nyu: "pedNYU", cu: "pedCU", teaching: "chalk", conference: "stage", vlab: "lab", magic: "tower",
+    mango: "mango", home: "house", contact: "mailbox", nyu: "pedNYU", cu: "pedCU", teaching: "chalk", conference: "stage", vlab: "lab", magic: "tower",
     rosi: "turbine", dev: "desk", library: "books", apps: "stall", aviation: "plane", bi: "billboard", citibike: "bikes", retail: "store",
     gym: "gym", trophy: "trophy", rocket: "rocket", windtunnel: "tunnel", astro: "scope", flowmind: "station",
   };

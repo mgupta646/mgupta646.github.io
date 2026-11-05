@@ -1,5 +1,14 @@
 # Explorer edition validation
 
+## Character chat and Mango — November 5, 2026
+
+- All JavaScript syntax checks, `git diff --check`, and the three regression scripts pass: `tests/world-routes.cjs`, `tests/assistant-core.cjs`, `tests/character-chat.cjs`.
+- Mango is the 23rd chapter and a reachable robot landmark on the Dev Deck. It appears in AI/product and engineering selected work and loads directly at `/#q-mango`.
+- Desktop chat submission displays a short text bubble above Mehul and a source-chapter link. The 390×844 layout collapses the panel after a reply; the bubble and character remain visible. The mobile Mango reader has no horizontal overflow.
+- Microphone behavior is tested with event doubles, including no automatic submission, denied permission, unsupported recognition and stopping when hidden. Live microphone recording was not exercised.
+- Optional model loading completed in the embedded browser and Chrome. Initial generation exceeded the original 60-second limit; the fallback worked. The revised generation budget is 80 tokens with a 120-second deadline and a composing status.
+- Chrome then successfully generated a grounded Mango reply within the short display limit, rendered above the character. No browser warnings/errors appeared in that run. This is a smoke test, not a factual-accuracy benchmark or a guarantee of performance on other devices.
+
 Run locally with `python -m http.server 8765 --bind 127.0.0.1`, then open `http://127.0.0.1:8765/`.
 
 ## Checked on October 10, 2026
