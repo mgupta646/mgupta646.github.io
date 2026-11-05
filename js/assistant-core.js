@@ -50,6 +50,10 @@
     const matches=search(query,sections);
     if(matches.length) {
       const s=matches[0],lines=factLines(s);
+      if(s.id==='trophy' && !/\b(claude|openai|leadership|nasa|guinness|ferrocampus)\b/i.test(query)) {
+        const year=query.match(/\b(?:19|20)\d{2}\b/)?.[0] || (/\bthis year\b/i.test(query)?String(new Date().getFullYear()):null);
+        if(year){const dated=lines.filter(line=>new RegExp('\\b'+year+'\\b').test(line));return {text:dated.length?short('Published entries dated '+year+': '+dated.slice(0,2).join(' ')):'No entries dated '+year+' are listed in this portfolio. That does not establish whether Mehul earned anything else that year.',id:s.id,direct:true};}
+      }
       if(s.id==='trophy' && /\b(certification|certifications|credential|credentials|badge|badges|certificate|certificates)\b/i.test(query) && !/\b(claude|leadership|openai|google|nyu)\b/i.test(query)) {
         return {text:'Mehul completed Anthropic’s Claude 101 in November 2026 and OpenAI Academy’s AI Leadership badge in October 2026. His Trophy Case also lists NYU, Google and Autodesk credentials, with verification links.',id:s.id,direct:true};
       }
