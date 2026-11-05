@@ -4,7 +4,7 @@ const core=require('../js/assistant-core.js');
 function setup(voice=true) {
   const nodes=new Map(),events={},workers=[],recognizers=[];
   const element=()=>({hidden:false,disabled:false,value:'',textContent:'',children:[],dataset:{},style:{setProperty(){}},offsetWidth:260,offsetHeight:110,
-    setAttribute(k,v){this[k]=v;},append(...children){this.children.push(...children);},remove(){},querySelectorAll(){return [];},addEventListener(){},contains(el){return el===nodes.get('chatInput');},focus(){document.activeElement=this;}});
+    setAttribute(k,v){this[k]=v;},append(...children){this.children.push(...children);},remove(){},querySelectorAll(){return [];},addEventListener(){},contains(el){return el===nodes.get('chatInput');},focus(){document.activeElement=this;},blur(){document.activeElement=null;}});
   for(const id of ['chatBox','chatToggle','chatClose','chatInput','chatMic','chatSend','chatStatus','chatSource','chatLog','chatMode','enableAI','voiceNote','chatForm','bubbleText','bubbleClose']) nodes.set(id,element());
   const document={body:{append(){},classList:{add(){},remove(){},contains(){return false;}}},createElement:element,createTextNode:text=>({textContent:text}),getElementById:id=>nodes.get(id),addEventListener:(name,fn)=>events[name]=fn,dispatchEvent(){},hidden:false};
   class Recognition { constructor(){recognizers.push(this);} start(){this.started=true;} stop(){this.onend?.();} abort(){this.aborted=true;this.onend?.();} }
@@ -30,5 +30,14 @@ function setup(voice=true) {
   await el('enableAI').onclick();assert.ok(worker.terminated);
   worker.onmessage({data:{type:'ready'}});assert.match(el('chatMode').textContent,/instant/,'Late worker messages must be ignored');
   const noVoice=setup(false);assert.ok(noVoice.nodes.get('chatMic').disabled);
+  const restricted=setup(),r=id=>restricted.nodes.get(id);
+  await r('enableAI').onclick();const rw=restricted.workers[0];rw.onmessage({data:{type:'ready'}});
+  r('chatInput').value='What is the capital of France?';r('chatForm').onsubmit({preventDefault(){}});
+  assert.equal(rw.last.type,'load','Off-topic requests must not reach the model');assert.match(r('bubbleText').textContent,/only answer/);
+  let route;restricted.ctx.window.MehulTown={guideTo(ids){route=ids;return true;}};
+  r('chatInput').value='Take me to Mango';r('chatForm').onsubmit({preventDefault(){}});
+  assert.equal(route[0],'mango');assert.match(r('bubbleText').textContent,/local voice assistant/);assert.equal(rw.last.type,'load','Routing does not execute model output');
+  r('chatInput').value='How was it built?';r('chatForm').onsubmit({preventDefault(){}});
+  assert.equal(rw.last.type,'ask');assert.match(rw.last.messages[0].content,/CURRENT CHAPTERS: mango/);assert.match(rw.last.messages[0].content,/requested date or fact is absent/);
   console.log('PASS: dictation review, denied/unsupported mic, hidden-page stop, worker replies, cancellation and stale-message isolation.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

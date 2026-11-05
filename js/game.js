@@ -1176,6 +1176,13 @@
   // handy for debugging in the console; tick(sec) advances the simulation without rendering
   window.MehulTown = {
     player, tour, npcs, train, goSection, nextStop,
+    guideTo(ids) {
+      if(!started || UI.anyOverlay() || !Array.isArray(ids)) return false;
+      const stops=[...new Set(ids)].filter(id=>SEC[id] && zonesOf(id).length);
+      if(!stops.length) return false;
+      endTour(); keys.clear(); keyOrder.length=0; touchDir=null; hideDialog();
+      startTour(stops,stops[0]);return true;
+    },
     tick(sec = 1) { for (let i = 0; i < sec * 60; i++) { const dt = 1 / 60; if (started) updatePlayer(dt); updateWorld(dt); updateRocket(dt); updateDialog(dt); updateParts(dt); updateCamera(dt); } },
   };
   if (document.fonts && document.fonts.load) ['8px "Press Start 2P"', '700 13px "Pixelify Sans"', '16px "Nunito"'].forEach((f) => document.fonts.load(f));

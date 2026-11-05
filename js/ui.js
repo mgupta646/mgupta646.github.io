@@ -70,6 +70,7 @@ const UI = {
   onGo: null,
 
   openPanel(id, auto = false) {
+    window.CharacterChat?.setTopic(id);
     const i = SECTIONS.findIndex((s) => s.id === id);
     if (i < 0) return;
     const s = SECTIONS[i];
@@ -275,6 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#pClose").onclick = () => { Audio8.play("close"); UI.closePanel("user"); };
   $("#pPrev").onclick = () => UI.step(-1);
   $("#pNext").onclick = () => UI.step(1);
+  $("#pAsk").onclick = () => window.CharacterChat?.askAbout(UI.current);
   $("#pQuick").onclick = () => { const id = UI.current; UI.closePanel("quick"); UI.openQuick(id); };
   $("#questlog").addEventListener("click", (e) => { if (e.target.id === "questlog") UI.closeLog(); });
   $("#logClose").onclick = () => UI.closeLog();

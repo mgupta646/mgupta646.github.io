@@ -58,3 +58,9 @@ These are browser viewport checks, not physical iOS/Android device tests. Reduce
 6. Start a tour, open reading mode, return to the town and continue to the next stop.
 7. With reduced motion enabled, confirm there is no title pan, screen shake or flash.
 8. Enable music in the town; reading mode and a hidden browser tab should pause playback.
+# Portfolio-only guide and navigation — November 5, 2026
+
+- Added regression checks for off-topic rejection before model calls, common instruction overrides, explicit routes, unknown destinations and negated movement requests.
+- Browser check: an unrelated geography question receives the portfolio-only reply; “Take me to Mango” starts the existing walking tour with Mango as its destination.
+- The local topic gate and grounded model prompt are defense layers, not a guarantee of perfect model compliance.
+- Category-question routing and retained project context for how/when follow-ups pass the regression suites. The guide receives detailed case-study blocks and instructions to acknowledge missing dates.
